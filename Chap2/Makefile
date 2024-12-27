@@ -7,7 +7,7 @@ MBR-OBJ:
 .PHONY: clean upload
 
 clean:
-	rm *.bin
+	rm *.bin *.out
 
 upload:
 	bximage -func=create -hd=60M -q ${BOOT_IMG}
