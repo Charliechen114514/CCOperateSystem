@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "debug.h": "c",
+        "string.h": "c",
+        "syscall.h": "c",
+        "stdio.h": "c"
+    }
+}

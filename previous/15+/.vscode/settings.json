@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "stdint.h": "c",
+        "init.h": "c",
+        "timer.h": "c",
+        "print.h": "c"
+    }
+}

@@ -1,0 +1,26 @@
+#关键字为 megs
+megs: 32
+
+#设置对应真实机器的 BIOS 和 VGA BIOS 。
+#对应两个关键字为 ： romimage 和 vgaromimage
+romimage: file=/usr/local/share/bochs/BIOS-bochs-latest
+vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest
+
+#选择启动盘符
+# hard disk load
+# boot: disk  #从硬盘启动
+# 启动盘信息   
+floppya: 1_44=floppy.img, status=inserted
+
+boot: a
+# 设置日志文件的输入位置
+log: =/usr/local/share/bochs/bochs.out
+
+# 关闭鼠标，打开键盘
+mouse: enabled=0
+keyboard: keymap=/usr/local/share/bochs/keymaps/x11-pc-us.map
+
+# 设置硬盘
+# ata0: enabled=1,ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+
+

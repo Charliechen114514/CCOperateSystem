@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "interrupt.h": "c",
+        "stdint.h": "c"
+    }
+}

@@ -1,0 +1,11 @@
+00000000  B80000            mov ax,0x0
+00000003  B81000            mov ax,0x10
+00000006  A11000            mov ax,[0x10]
+00000009  A11400            mov ax,[0x14]
+0000000C  EBFE              jmp short 0xc
+0000000E  0000              add [bx+si],al
+00000010  0400              add al,0x0
+00000012  0000              add [bx+si],al
+00000014  99                cwd
+00000015  0000              add [bx+si],al
+00000017  00                db 0x00

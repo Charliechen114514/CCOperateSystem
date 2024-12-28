@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "sstream": "c",
+        "stdint.h": "c",
+        "cstring": "c",
+        "bitmap.h": "c",
+        "global.h": "c",
+        "memory.h": "c",
+        "debug.h": "c",
+        "init.h": "c"
+    }
+}
