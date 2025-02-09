@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ccos_print.h": "c",
+        "types.h": "c"
+    }
+}

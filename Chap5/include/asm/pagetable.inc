@@ -1,5 +1,5 @@
 ; page table is placed at 1MB
-%define PAGE_TABLE_POSITION    0x10_0000
+%define PAGE_TABLE_POSITION    0x1000000
 %define PAGE_SIZE              4096
 ; --------- Page Table Properties --------
 PAGE_TABLE_P        equ     1b

@@ -11,13 +11,16 @@
 %define PLACE_MBR_MAGIC         db 0x55, 0xaa
 
 ; Boot Real Mode Print Mode
+;   ---------------------------------
+;   | K | R | G | B | I | R | G | B |
+;   ---------------------------------
 %define PRINT_STYLE             0x09
 
 ; sector macros
 %define LOADER_BASE_ADDR        0x900
 %define LOADER_START_SECTOR     0x2
 
-; kernel entry point
+%define KERNEL_BIN_SECTOR       0x9
 %define KERNEL_ENTRY_POINT      0xc0001500
 %define KERNEL_BIN_BASE_ADDR    0x70000
 %define PT_NULL                 0   

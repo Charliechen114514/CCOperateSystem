@@ -1,4 +1,4 @@
-%include "boot.inc"
+%include "asm/boot.inc"
 
 ; ------------------------------------
 ;   print.inc helps print some infos
@@ -10,7 +10,7 @@
 ; for each line, so add 160 can shift the displaying into
 ; next line
 ; ------------------------------------
-%define NEW_LINE_LENGTH 160
+%define NEW_LINE_LENGTH         160
 
 ; base offser print of the 
 %define BASE_PRINT              NEW_LINE_LENGTH * 3
@@ -27,9 +27,6 @@
 ;   PRINT_IN_PROTECT_MODE
 ;   params1: the Char display
 ;   params2: the Style follows the VGA Settings
-;   ---------------------------------
-;   | K | R | G | B | I | R | G | B |
-;   ---------------------------------
 ; ------------------------------------
 
 %macro PRINT_IN_PROTECT_MODE 2
@@ -52,79 +49,3 @@
     inc di
 %endmacro
 
-; Oh shit, I make a difficulty in displaying
-; as the data segments abolished in the using file
-; so currently place as here
-; then i shell modified at next release :)
-; possibly...
-%macro print_hello_os_protect_mode 0
-    PRINT_IN_PROTECT_MODE_STYLE 'C'
-    PRINT_IN_PROTECT_MODE_STYLE 'H'
-    PRINT_IN_PROTECT_MODE_STYLE 'A'
-    PRINT_IN_PROTECT_MODE_STYLE 'R'
-    PRINT_IN_PROTECT_MODE_STYLE 'L'
-    PRINT_IN_PROTECT_MODE_STYLE 'I'
-    PRINT_IN_PROTECT_MODE_STYLE 'E'
-    PRINT_IN_PROTECT_MODE_STYLE 0x27
-    PRINT_IN_PROTECT_MODE_STYLE 'S'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'S'
-    PRINT_IN_PROTECT_MODE_STYLE '!'
-%endmacro
-
-%macro print_protect_mode_state 0
-    PRINT_IN_PROTECT_MODE_STYLE 'N'
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'W'
-    PRINT_IN_PROTECT_MODE_STYLE ','
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'S'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'I'
-    PRINT_IN_PROTECT_MODE_STYLE 'S'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'I'
-    PRINT_IN_PROTECT_MODE_STYLE 'N'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'P'
-    PRINT_IN_PROTECT_MODE_STYLE 'R'
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'T'
-    PRINT_IN_PROTECT_MODE_STYLE 'E'
-    PRINT_IN_PROTECT_MODE_STYLE 'C'
-    PRINT_IN_PROTECT_MODE_STYLE 'T'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'M'
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'D'
-    PRINT_IN_PROTECT_MODE_STYLE 'E'
-    PRINT_IN_PROTECT_MODE_STYLE '!'
-%endmacro
-
-%macro print_protect_mode_virtual 0
-    PRINT_IN_PROTECT_MODE_STYLE 'N'
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'W'
-    PRINT_IN_PROTECT_MODE_STYLE ','
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'S'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'O'
-    PRINT_IN_PROTECT_MODE_STYLE 'W'
-    PRINT_IN_PROTECT_MODE_STYLE 'N'
-    PRINT_IN_PROTECT_MODE_STYLE 'S'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'V'
-    PRINT_IN_PROTECT_MODE_STYLE 'I'
-    PRINT_IN_PROTECT_MODE_STYLE 'R'
-    PRINT_IN_PROTECT_MODE_STYLE 'T'
-    PRINT_IN_PROTECT_MODE_STYLE 'U'
-    PRINT_IN_PROTECT_MODE_STYLE 'A'
-    PRINT_IN_PROTECT_MODE_STYLE 'L'
-    PRINT_IN_PROTECT_MODE_STYLE ' '
-    PRINT_IN_PROTECT_MODE_STYLE 'M'
-    PRINT_IN_PROTECT_MODE_STYLE 'E'
-    PRINT_IN_PROTECT_MODE_STYLE 'M'
-    PRINT_IN_PROTECT_MODE_STYLE '!'
-%endmacro
