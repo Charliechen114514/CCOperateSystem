@@ -2,6 +2,7 @@
 #include "include/kernel/init.h"
 #include "include/library/assert.h"
 #include "include/memory/memory.h"
+
 int main()
 {
     ccos_set_console_cursor(5, 0);

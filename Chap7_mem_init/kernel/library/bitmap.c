@@ -1,10 +1,10 @@
 #include "include/library/bitmap.h"
 #include "include/library/assert.h"
+#include "include/library/string.h"
 
 void bitmap_init(Bitmap* btmp) {
     memset(btmp->bits, 0, btmp->btmp_bytes_len);   
 }
- 
 
 bool bitmap_scan_test(Bitmap* btmp, uint32_t bit_idx) {
     const uint32_t byte_idx = bit_idx / 8;    

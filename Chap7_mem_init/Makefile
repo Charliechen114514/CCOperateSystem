@@ -6,7 +6,7 @@ BOOT_IMG		= boot.img
 
 #kernel flags
 REQ_VERBOSE_PTR			= VERBOSE
-KERNEL_COMPILE_CFLAG	= -fno-builtin
+KERNEL_COMPILE_CFLAG	= -fno-builtin -fno-stack-protector
 MAKE_KER_BUILD_FLAG		= -D${REQ_VERBOSE_PTR} ${KERNEL_COMPILE_CFLAG}
 
 # dirent name
@@ -20,7 +20,8 @@ KERNEL_ASM_DIR	= arch/kernel
 DEBUG_ASSERT 	= Debug
 DEBUG_FLAG		:= -D${DEBUG_ASSERT}
 # Modify the GCC for the usage
-GCC			= gcc-4.4
+# Support at least 
+GCC			= gcc
 
 # Some dependencies macro
 

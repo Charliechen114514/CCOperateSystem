@@ -1,6 +1,7 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 #include "include/library/types.h"
+
 #define BITMAP_MASK 1
 typedef struct {
    uint32_t btmp_bytes_len;

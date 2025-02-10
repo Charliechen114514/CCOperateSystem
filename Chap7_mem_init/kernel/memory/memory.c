@@ -2,6 +2,7 @@
 #include "include/library/ccos_print.h"
 #include "include/memory/memory_settings.h"
 #include "include/library/assert.h"
+#include "include/library/string.h"
 
 #define PDE_IDX(addr) ((addr & 0xffc00000) >> 22)
 #define PTE_IDX(addr) ((addr & 0x003ff000) >> 12)
