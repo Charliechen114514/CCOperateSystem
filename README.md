@@ -28,6 +28,6 @@
 
 从这里开始！
 
-> :link: :point_right:  [导览前言！](./Documentations/README_EN.md)
+> :link: :point_right:  [Preface of the tour!](./Documentations/README_EN.md)
 >
-> :link: :point_right:  [前言](./Documentations/README.md)
+> :link: :point_right:  [前言！](./Documentations/README.md)
