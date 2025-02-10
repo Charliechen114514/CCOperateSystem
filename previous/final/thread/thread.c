@@ -35,14 +35,16 @@ static void idle(void* arg UNUSED) {
    while(1) {
       thread_block(TASK_BLOCKED);     
       //执行hlt时必须要保证目前处在开中断的情况下
-      asm volatile ("sti; hlt" : : : "memory");
+      asm volatile ("sti; \
+          hlt" : : : "memory");
    }
 }
 
 /* 获取当前线程pcb指针 */
 struct task_struct* running_thread() {
    uint32_t esp; 
-   asm ("mov %%esp, %0" : "=g" (esp));
+   asm ("mov %%esp, %0" \
+      : "=g" (esp));
   /* 取esp整数部分即pcb起始地址 */
    return (struct task_struct*)(esp & 0xfffff000);
 }

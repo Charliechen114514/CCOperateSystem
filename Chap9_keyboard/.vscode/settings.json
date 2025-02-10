@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "ccos_print.h": "c",
+        "thread.h": "c",
+        "interrupt.h": "c",
+        "keyboard.h": "c",
+        "keyboard_ascii.h": "c",
+        "io.h": "c",
+        "keyboard_mappings.h": "c",
+        "ioqueue.h": "c"
+    }
+}

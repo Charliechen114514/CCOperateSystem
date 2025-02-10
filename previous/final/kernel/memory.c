@@ -60,7 +60,7 @@ static void* vaddr_get(enum pool_flags pf, uint32_t pg_cnt) {
       struct task_struct* cur = running_thread();
       bit_idx_start  = bitmap_scan(&cur->userprog_vaddr.vaddr_bitmap, pg_cnt);
       if (bit_idx_start == -1) {
-	 return NULL;
+	      return NULL;
       }
 
       while(cnt < pg_cnt) {

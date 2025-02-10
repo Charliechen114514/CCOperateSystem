@@ -10,6 +10,7 @@
         "stdint.h": "c",
         "bitmap.h": "c",
         "global.h": "c",
-        "memory.h": "c"
+        "memory.h": "c",
+        "interrupt.h": "c"
     }
 }
