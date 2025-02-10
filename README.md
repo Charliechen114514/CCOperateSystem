@@ -1,32 +1,29 @@
 # CCOperateSystem
 
-![](https://img.shields.io/badge/Language-C>=C90-informational?logo=C&logoColor=#A8B9CC&color=#A8B9CC)![](https://img.shields.io/badge/Language-ASM-red)![STILL_IN_MAINTAINS](https://img.shields.io/badge/Maintains-YES-red)![License](https://img.shields.io/badge/license-GNUv3-yellow)  ![Documentation](https://img.shields.io/badge/Documentation-ON_THE_WAY-brightgreen)
+![](https://img.shields.io/badge/Language-C>=C90-informational?logo=C&logoColor=#A8B9CC&color=#A8B9CC)![](https://img.shields.io/badge/Language-ASM-red)![STILL_IN_MAINTAINS](https://img.shields.io/badge/Maintains-YES-red)![License](https://img.shields.io/badge/license-GNUv3-yellow) ![Documentation](https://img.shields.io/badge/Documentation-ON_THE_WAY-brightgreen)
 
-​	Make Quick: A Simple Tutorial Try to teach you how to make an operating system in a modern toolchains, with using the language C and typical nasm.
+ 一句话：一个简单的教程尝试教你如何使用 C 语言和典型的 nasm 在现代工具链中制作操作系统。
 
 ![GUI](https://img.shields.io/badge/Introduction-What_is_CC_Operating_System-blue)
 
-​	CC Operating System is a quite common and simple operating mininum system that can run in virtual machines. To startup, you need to setup your work environment, With current time, I can promised that the repo except my specially markings, all the code is available to use the newest gcc and nasm to compile.
+ CCOperatingSystem是一种非常简单的操作系统，可以在bochs虚拟机中运行。要启动，您需要设置您的工作环境，目前，我可以保证除了我特别标记的代码之外，所有代码都可以使用最新的 gcc 和 nasm 进行编译。
 
 ![GUI](https://img.shields.io/badge/Setup-Try_The_Run-yellow)
 
-![Documentation](https://img.shields.io/badge/TOOLS-GCC>=4.4.7-brightgreen)![Documentation](https://img.shields.io/badge/TOOLS-nasm>=2.16-red)![Documentation](https://img.shields.io/badge/Environment-Bochs_Only_Current-blue)
+![文档](https://img.shields.io/badge/TOOLS-GCC>=4.4.7-brightgreen)![文档](https://img.shields.io/badge/TOOLS-nasm>=2.16-red)![文档](https://img.shields.io/badge/Environment-Bochs_Only_Current-blue)
 
-​	So, what you need to do is absolutely simple. Above all, we need only 
+ 所以，你需要做的事情非常简单。最重要的是，我们只需要
 
-- `gcc(Promised version is >=4.4.7, up to the newest version)`
-- `nasm(Promised with the newest version)`
-- `bochs(Promised with 2.8 only, see the setup_and_notice.md(Welp, currently TODO) To seek the modifications)`
+- `gcc（至少检测过的版本> = 4.4.7，最高为最新版本）`
+- `nasm（至少检测过的最新版本）`
+- `bochs（检测过的是使用 2.8，当然其他的也可以，需要自己魔改，请参阅下面的documentations指引！`
 
-​	That all the case! Author has been tested running in WSL, Ubuntu And Arch Linux, so I could provide the instructions of setup for you!
+ 就是这样！作者已经在 WSL、Ubuntu 和 Arch Linux 中进行了测试，因此我可以为您提供设置说明！有关详细信息，请参阅以下教程！
 
 ![GUI](https://img.shields.io/badge/Documentation-Where_And_How_Should_I_Start-yellow)
 
-TODO
+从这里开始！
 
-
-
-
-
-
-
+> :link: :point_right:  [导览前言！](./Documentations/README_EN.md)
+>
+> :link: :point_right:  [前言](./Documentations/README.md)
