@@ -4,6 +4,10 @@
 
  一句话：一个简单的教程尝试教你如何使用 C 语言和典型的 nasm 在现代工具链中制作操作系统。
 
+- 简体中文：[![GUI](https://img.shields.io/badge/使用-简体中文-red)](README.md)
+
+- English：[![GUI](https://img.shields.io/badge/Reading_Language-English-red)](README_EN.md)
+
 ![GUI](https://img.shields.io/badge/Introduction-What_is_CC_Operating_System-blue)
 
  CCOperatingSystem是一种非常简单的操作系统，可以在bochs虚拟机中运行。要启动，您需要设置您的工作环境，目前，我可以保证除了我特别标记的代码之外，所有代码都可以使用最新的 gcc 和 nasm 进行编译。

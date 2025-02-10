@@ -4,6 +4,10 @@
 
 ​	Quick And Flash: A Simple Tutorial Try to teach you how to make an operating system in a modern toolchains, with using the language C and typical nasm.
 
+- 简体中文：[![GUI](https://img.shields.io/badge/使用-简体中文-red)](README.md)
+
+- English：[![GUI](https://img.shields.io/badge/Reading_Language-English-red)](README_EN.md)
+
 ![GUI](https://img.shields.io/badge/Introduction-What_is_CC_Operating_System-blue)
 
 ​	CC Operating System is a quite common and simple operating mininum system that can run in virtual machines. To startup, you need to setup your work environment, With current time, I can promised that the repo except my specially markings, all the code is available to use the newest gcc and nasm to compile.
