@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "assert.h": "c",
+        "interrupt.h": "c",
+        "ccos_print.h": "c",
+        "types.h": "c",
+        "string.h": "c",
+        "bitmap.h": "c",
+        "memory.h": "c",
+        "memory_settings.h": "c"
+    }
+}

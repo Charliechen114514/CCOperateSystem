@@ -3,6 +3,13 @@
         "debug.h": "c",
         "string.h": "c",
         "syscall.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "io.h": "c",
+        "timer.h": "c",
+        "assert.h": "c",
+        "stdint.h": "c",
+        "bitmap.h": "c",
+        "global.h": "c",
+        "memory.h": "c"
     }
 }
