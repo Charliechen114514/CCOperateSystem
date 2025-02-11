@@ -1,202 +1,213 @@
-OBJ_DIR = ./middlewares
+BUILD_DIR = ./build
 BOOT_BIN = ./boot
-BOOT_IMG = boot.img
 ENTRY_POINT = 0xc0001500
-DISASM_DIR = disasm
 AS = nasm
 CC = gcc
 LD = ld
-LIB = -I. -I lib/ -I lib/kernel/ -I lib/user/ -I kernel/ -I device/ -I thread/ -I ${USER_C_SRC_DIR}/programs/ -I fs/ -I shell/
+LIB = -I lib/ -I lib/kernel/ -I lib/user/ -I kernel/ -I device/ -I thread/ -I userprog/ -I fs/ -I shell/
 CFLAGS = -Wall -m32 -fno-stack-protector $(LIB) -c -fno-builtin -W -Wstrict-prototypes -Wmissing-prototypes
-ASFLAGS = -f elf 
-ASM_INC_DIR = include
-ARCH_ASM_DIR= arch/asm
-MBR 	= mbr
-LOADER 	= loader
-KERNEL 	= kernel
-# Sources for the kernel level program
-KERNEL_C_SRC_DIR 	= kernel
-USER_C_SRC_DIR		= user
-
-LDFLAGS =  -m elf_i386 -z noexecstack \
-			-Ttext $(ENTRY_POINT) -e main -Map $(OBJ_DIR)/kernel.map
-
-KERNEL_MAIN_OBJ = \
-		$(OBJ_DIR)/main.o $(OBJ_DIR)/init.o $(OBJ_DIR)/interrupt.o \
-      	$(OBJ_DIR)/timer.o $(OBJ_DIR)/kernel.o\
-		${OBJ_DIR}/ccos_print.o ${OBJ_DIR}/_ccos_print.o \
-      	$(OBJ_DIR)/kernel_assert.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/bitmap.o \
-      	$(OBJ_DIR)/string.o $(OBJ_DIR)/thread.o $(OBJ_DIR)/list.o \
-      	$(OBJ_DIR)/switch_thread.o $(OBJ_DIR)/console_tty.o $(OBJ_DIR)/lock.o \
-      	$(OBJ_DIR)/keyboard.o $(OBJ_DIR)/ioqueue.o $(OBJ_DIR)/tss.o \
-      	$(OBJ_DIR)/process.o $(OBJ_DIR)/syscall.o $(OBJ_DIR)/syscall-init.o \
-      	$(OBJ_DIR)/stdio.o $(OBJ_DIR)/ide.o $(OBJ_DIR)/stdio-kernel.o $(OBJ_DIR)/fs.o \
-      	$(OBJ_DIR)/inode.o $(OBJ_DIR)/file.o $(OBJ_DIR)/dir.o $(OBJ_DIR)/fork.o \
-      	$(OBJ_DIR)/shell.o $(OBJ_DIR)/user_assert.o  $(OBJ_DIR)/buildin_cmd.o \
-      	$(OBJ_DIR)/exec.o $(OBJ_DIR)/wait_exit.o $(OBJ_DIR)/pipe.o
-
-# boot images requires the followings
-${BOOT_IMG}: \
-	${OBJ_DIR}/${MBR}.bin ${OBJ_DIR}/${LOADER}.bin ${OBJ_DIR}/${KERNEL}.bin
-
-# Provide the os binarys
-$(OBJ_DIR)/${KERNEL}.bin: $(KERNEL_MAIN_OBJ)
-	$(LD) $(LDFLAGS) $^ -o $@
+ASFLAGS = -f elf
+LDFLAGS =  -m elf_i386 -Ttext $(ENTRY_POINT) -e main -Map $(BUILD_DIR)/kernel.map
+OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
+      $(BUILD_DIR)/timer.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/print.o \
+      $(BUILD_DIR)/debug.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/bitmap.o \
+      $(BUILD_DIR)/string.o $(BUILD_DIR)/thread.o $(BUILD_DIR)/list.o \
+      $(BUILD_DIR)/switch.o $(BUILD_DIR)/console.o $(BUILD_DIR)/sync.o \
+      $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/ioqueue.o $(BUILD_DIR)/tss.o \
+      $(BUILD_DIR)/process.o $(BUILD_DIR)/syscall.o $(BUILD_DIR)/syscall-init.o \
+      $(BUILD_DIR)/stdio.o $(BUILD_DIR)/ide.o $(BUILD_DIR)/stdio-kernel.o $(BUILD_DIR)/fs.o \
+      $(BUILD_DIR)/inode.o $(BUILD_DIR)/file.o $(BUILD_DIR)/dir.o $(BUILD_DIR)/fork.o \
+      $(BUILD_DIR)/shell.o $(BUILD_DIR)/assert.o  $(BUILD_DIR)/buildin_cmd.o \
+      $(BUILD_DIR)/exec.o $(BUILD_DIR)/wait_exit.o $(BUILD_DIR)/pipe.o
 
 ##############     c代码编译     ###############
-$(OBJ_DIR)/main.o: ${KERNEL_C_SRC_DIR}/main.c
+$(BUILD_DIR)/main.o: kernel/main.c lib/kernel/print.h \
+        lib/stdint.h kernel/init.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/init.o: ${KERNEL_C_SRC_DIR}/global_init/init.c
+$(BUILD_DIR)/init.o: kernel/init.c kernel/init.h lib/kernel/print.h \
+        lib/stdint.h kernel/interrupt.h device/timer.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/interrupt.o: ${KERNEL_C_SRC_DIR}/library/interrupt.c 
+$(BUILD_DIR)/interrupt.o: kernel/interrupt.c kernel/interrupt.h \
+        lib/stdint.h kernel/global.h lib/kernel/io.h lib/kernel/print.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/ccos_print.o: ${KERNEL_C_SRC_DIR}/library/ccos_print.c 
+$(BUILD_DIR)/timer.o: device/timer.c device/timer.h lib/stdint.h\
+        lib/kernel/io.h lib/kernel/print.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/timer.o: ${KERNEL_C_SRC_DIR}/device/timer.c 
+$(BUILD_DIR)/debug.o: kernel/debug.c kernel/debug.h \
+        lib/kernel/print.h lib/stdint.h kernel/interrupt.h lib/user/syscall.h 
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/kernel_assert.o: ${KERNEL_C_SRC_DIR}/library/kernel_assert.c 
+$(BUILD_DIR)/string.o: lib/string.c lib/string.h lib/stdint.h kernel/global.h \
+	lib/stdint.h kernel/debug.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/string.o: ${KERNEL_C_SRC_DIR}/library/string.c 
+$(BUILD_DIR)/bitmap.o: lib/kernel/bitmap.c lib/kernel/bitmap.h \
+    	kernel/global.h lib/stdint.h lib/string.h lib/stdint.h \
+     	lib/kernel/print.h kernel/interrupt.h kernel/debug.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/bitmap.o: ${KERNEL_C_SRC_DIR}/library/bitmap.c 
+$(BUILD_DIR)/memory.o: kernel/memory.c kernel/memory.h lib/stdint.h lib/kernel/bitmap.h \
+   	kernel/global.h kernel/global.h kernel/debug.h lib/kernel/print.h \
+	lib/kernel/io.h kernel/interrupt.h lib/string.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/memory.o: ${KERNEL_C_SRC_DIR}/memory/memory.c 
+$(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h lib/kernel/list.h \
+    	kernel/global.h lib/string.h lib/stdint.h kernel/debug.h \
+     	kernel/interrupt.h lib/kernel/print.h kernel/memory.h \
+      	lib/kernel/bitmap.h userprog/process.h thread/thread.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/thread.o: ${KERNEL_C_SRC_DIR}/kernel/thread.c
+$(BUILD_DIR)/list.o: lib/kernel/list.c lib/kernel/list.h kernel/global.h lib/stdint.h \
+        kernel/interrupt.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/list.o: ${KERNEL_C_SRC_DIR}/library/list.c
+$(BUILD_DIR)/console.o: device/console.c device/console.h lib/stdint.h \
+        lib/kernel/print.h thread/sync.h lib/kernel/list.h kernel/global.h \
+     	thread/thread.h thread/thread.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/console_tty.o: ${KERNEL_C_SRC_DIR}/device/console_tty.c 
+$(BUILD_DIR)/sync.o: thread/sync.c thread/sync.h lib/kernel/list.h kernel/global.h \
+       	lib/stdint.h thread/thread.h lib/string.h lib/stdint.h kernel/debug.h \
+	kernel/interrupt.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/lock.o: ${KERNEL_C_SRC_DIR}/kernel/lock.c 
+$(BUILD_DIR)/keyboard.o: device/keyboard.c device/keyboard.h lib/kernel/print.h \
+        lib/stdint.h kernel/interrupt.h lib/kernel/io.h device/ioqueue.h \
+	thread/thread.h lib/kernel/list.h kernel/global.h thread/sync.h \
+      	thread/thread.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/keyboard.o: ${KERNEL_C_SRC_DIR}/device/keyboard.c 
+$(BUILD_DIR)/ioqueue.o: device/ioqueue.c device/ioqueue.h lib/stdint.h thread/thread.h \
+        lib/kernel/list.h kernel/global.h thread/sync.h thread/thread.h kernel/interrupt.h \
+        kernel/debug.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/ioqueue.o: ${KERNEL_C_SRC_DIR}/device/ioqueue.c
+$(BUILD_DIR)/tss.o: userprog/tss.c userprog/tss.h thread/thread.h lib/stdint.h \
+    	lib/kernel/list.h kernel/global.h lib/string.h lib/stdint.h \
+     	lib/kernel/print.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/tss.o: ${USER_C_SRC_DIR}/tss/tss.c
+$(BUILD_DIR)/process.o: userprog/process.c userprog/process.h thread/thread.h \
+    	lib/stdint.h lib/kernel/list.h kernel/global.h kernel/debug.h \
+     	kernel/memory.h lib/kernel/bitmap.h userprog/tss.h kernel/interrupt.h \
+      	lib/string.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/process.o: ${USER_C_SRC_DIR}/programs/process.c
+$(BUILD_DIR)/syscall.o: lib/user/syscall.c lib/user/syscall.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/syscall.o: ${USER_C_SRC_DIR}/syscall/syscall.c
+$(BUILD_DIR)/syscall-init.o: userprog/syscall-init.c userprog/syscall-init.h \
+    	lib/stdint.h lib/user/syscall.h lib/kernel/print.h thread/thread.h \
+     	lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h \
+	device/console.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/syscall-init.o: ${USER_C_SRC_DIR}/programs/syscall-init.c 
+$(BUILD_DIR)/stdio.o: lib/stdio.c lib/stdio.h lib/stdint.h kernel/interrupt.h \
+    	lib/stdint.h kernel/global.h lib/string.h lib/user/syscall.h lib/kernel/print.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/stdio.o: ${KERNEL_C_SRC_DIR}/FormatIO/stdio.c 
+$(BUILD_DIR)/ide.o: device/ide.c device/ide.h lib/stdint.h thread/sync.h \
+    	lib/kernel/list.h kernel/global.h thread/thread.h lib/kernel/bitmap.h \
+     	kernel/memory.h lib/kernel/io.h lib/stdio.h lib/stdint.h lib/kernel/stdio-kernel.h \
+	kernel/interrupt.h kernel/debug.h device/console.h device/timer.h lib/string.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/ide.o: ${KERNEL_C_SRC_DIR}/device/ide.c 
+$(BUILD_DIR)/stdio-kernel.o: lib/kernel/stdio-kernel.c lib/kernel/stdio-kernel.h lib/stdint.h \
+    	lib/kernel/print.h lib/stdio.h lib/stdint.h device/console.h kernel/global.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/stdio-kernel.o: ${KERNEL_C_SRC_DIR}/FormatIO/stdio-kernel.c
+$(BUILD_DIR)/fs.o: fs/fs.c fs/fs.h lib/stdint.h device/ide.h thread/sync.h lib/kernel/list.h \
+   	kernel/global.h thread/thread.h lib/kernel/bitmap.h kernel/memory.h fs/super_block.h \
+	fs/inode.h fs/dir.h lib/kernel/stdio-kernel.h lib/string.h lib/stdint.h kernel/debug.h \
+       	kernel/interrupt.h lib/kernel/print.h fs/file.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/fs.o: ${KERNEL_C_SRC_DIR}/filesystem/fs.c
+$(BUILD_DIR)/inode.o: fs/inode.c fs/inode.h lib/stdint.h lib/kernel/list.h \
+    	kernel/global.h fs/fs.h device/ide.h thread/sync.h thread/thread.h \
+     	lib/kernel/bitmap.h kernel/memory.h fs/file.h kernel/debug.h \
+      	kernel/interrupt.h lib/kernel/stdio-kernel.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/inode.o: ${KERNEL_C_SRC_DIR}/filesystem/inode.c
+$(BUILD_DIR)/file.o: fs/file.c fs/file.h lib/stdint.h device/ide.h thread/sync.h \
+    	lib/kernel/list.h kernel/global.h thread/thread.h lib/kernel/bitmap.h \
+     	kernel/memory.h fs/fs.h fs/inode.h fs/dir.h lib/kernel/stdio-kernel.h \
+      	kernel/debug.h kernel/interrupt.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/file.o: ${KERNEL_C_SRC_DIR}/filesystem/file.c
+$(BUILD_DIR)/dir.o: fs/dir.c fs/dir.h lib/stdint.h fs/inode.h lib/kernel/list.h \
+    	kernel/global.h device/ide.h thread/sync.h thread/thread.h \
+     	lib/kernel/bitmap.h kernel/memory.h fs/fs.h fs/file.h \
+      	lib/kernel/stdio-kernel.h kernel/debug.h kernel/interrupt.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/dir.o: ${KERNEL_C_SRC_DIR}/filesystem/dir.c
+$(BUILD_DIR)/fork.o: userprog/fork.c userprog/fork.h thread/thread.h lib/stdint.h \
+    	lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h \
+     	userprog/process.h kernel/interrupt.h kernel/debug.h \
+      	lib/kernel/stdio-kernel.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/fork.o: ${USER_C_SRC_DIR}/programs/fork.c
+$(BUILD_DIR)/shell.o: shell/shell.c shell/shell.h lib/stdint.h fs/fs.h \
+    	lib/user/syscall.h lib/stdio.h lib/stdint.h kernel/global.h lib/user/assert.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/shell.o: ${USER_C_SRC_DIR}/shell/shell.c 
+$(BUILD_DIR)/assert.o: lib/user/assert.c lib/user/assert.h lib/stdio.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/user_assert.o: ${USER_C_SRC_DIR}/library/user_assert.c
+$(BUILD_DIR)/buildin_cmd.o: shell/buildin_cmd.c shell/buildin_cmd.h lib/stdint.h \
+    	lib/user/syscall.h lib/stdio.h lib/stdint.h lib/string.h fs/fs.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/buildin_cmd.o: ${USER_C_SRC_DIR}/shell/buildin_cmd.c
+$(BUILD_DIR)/exec.o: userprog/exec.c userprog/exec.h thread/thread.h lib/stdint.h \
+    	lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h \
+     	lib/kernel/stdio-kernel.h fs/fs.h lib/string.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/exec.o: ${USER_C_SRC_DIR}/programs/exec.c
+$(BUILD_DIR)/wait_exit.o: userprog/wait_exit.c userprog/wait_exit.h \
+    	userprog/../thread/thread.h lib/stdint.h lib/kernel/list.h \
+     	kernel/global.h lib/kernel/bitmap.h kernel/memory.h kernel/debug.h \
+      	thread/thread.h lib/kernel/stdio-kernel.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/wait_exit.o: ${USER_C_SRC_DIR}/programs/wait_exit.c
-	$(CC) $(CFLAGS) $< -o $@
-
-$(OBJ_DIR)/pipe.o: ${USER_C_SRC_DIR}/shell/pipe.c 
+$(BUILD_DIR)/pipe.o: shell/pipe.c shell/pipe.h lib/stdint.h kernel/memory.h \
+    	lib/kernel/bitmap.h kernel/global.h lib/kernel/list.h fs/fs.h fs/file.h \
+     	device/ide.h thread/sync.h thread/thread.h fs/dir.h fs/inode.h fs/fs.h \
+      	device/ioqueue.h thread/thread.h
 	$(CC) $(CFLAGS) $< -o $@
 
 
 ##############    汇编代码编译    ###############
-# MBR guidance asm
-${OBJ_DIR}/${MBR}.bin:
-	mkdir -p ${OBJ_DIR}
-	nasm -o ${OBJ_DIR}/${MBR}.bin -w-orphan-labels		-I${ASM_INC_DIR} ${ARCH_ASM_DIR}/${MBR}.S
-
-# Loader the kernel asm
-${OBJ_DIR}/${LOADER}.bin:
-	nasm -o ${OBJ_DIR}/${LOADER}.bin -w-orphan-labels	-I${ASM_INC_DIR} ${ARCH_ASM_DIR}/${LOADER}.S
-
-
-$(OBJ_DIR)/kernel.o: arch/kernel/kernel.S
+$(BUILD_DIR)/kernel.o: kernel/kernel.S
 	$(AS) $(ASFLAGS) $< -o $@
 
-$(OBJ_DIR)/_ccos_print.o: arch/kernel/_ccos_print.S
+$(BUILD_DIR)/print.o: lib/kernel/print.S
 	$(AS) $(ASFLAGS) $< -o $@
 
-$(OBJ_DIR)/switch_thread.o: arch/kernel/switch_thread.S
+$(BUILD_DIR)/switch.o: thread/switch.S
 	$(AS) $(ASFLAGS) $< -o $@
 
+##############    链接所有目标文件    #############
+$(BUILD_DIR)/kernel.bin: $(OBJS)
+	$(LD) $(LDFLAGS) $^ -o $@
 
-# Phony's are the scrpits usage
-.PHONY: clean upload disasm all
+.PHONY : mk_dir hd clean all
 
-# clean the builds
+mk_dir:
+	if [ ! -d $(BUILD_DIR) ];then mkdir $(BUILD_DIR);fi
+
+hd:
+	dd if=$(BOOT_BIN)/mbr.bin of=a.img bs=512 count=1 conv=notrunc
+	dd if=$(BOOT_BIN)/loader.bin of=a.img bs=512 count=4 seek=2 conv=notrunc
+	dd if=$(BUILD_DIR)/kernel.bin \
+           of=a.img \
+           bs=512 count=200 seek=9 conv=notrunc
+	bochs -f bochsrc.ab
 clean:
-# Clean the disasm folder if using make disasm
-	rm -rf ${DISASM_DIR}/* ${DISASM_DIR}
-# Clean the compile time folder	
-	rm -rf ${OBJ_DIR}/* ${OBJ_DIR}
-# clean the bochs running log and image
-	rm -f *.out *.img
-	
+	cd $(BUILD_DIR) && rm -f ./*
 
-disasm:
-# create the disasm folder
-	mkdir -p ${DISASM_DIR}
-	ndisasm -o 0x0900 	${OBJ_DIR}/${LOADER}.bin > ${DISASM_DIR}/dis${LOADER}.asm
-	ndisasm -o 0x7c00	${OBJ_DIR}/${MBR}.bin > ${DISASM_DIR}/dis${MBR}.asm
-	ndisasm -o 0x0000	${OBJ_DIR}/_ccos_print.o > ${DISASM_DIR}/disprint.asm
-	objdump -d --adjust-vma=0xC0001500 ${OBJ_DIR}/main.o  > ${DISASM_DIR}/dismain.asm
+build: $(BUILD_DIR)/kernel.bin
 
-# upload the issue
-# for bochs 2.8+, you need to specify the creation in -func=create
-# on the other hand, below this, use -mode=create
-# regards from bochs documenations :)
-upload:
-	rm -f ${BOOT_IMG}
-	bximage -func=create -hd=60M -q ${BOOT_IMG}
-	dd if=${OBJ_DIR}/${MBR}.bin of=${BOOT_IMG} bs=512 count=1 conv=notrunc
-	dd if=${OBJ_DIR}/${LOADER}.bin of=${BOOT_IMG} bs=512 count=5 seek=2 conv=notrunc
-	dd if=${OBJ_DIR}/${KERNEL}.bin of=${BOOT_IMG} bs=512 count=200 seek=9 conv=notrunc
-	bochs -f bochsrc
-
-all:
-	make clean;make;make upload
+all: mk_dir build hd

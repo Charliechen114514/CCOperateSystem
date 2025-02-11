@@ -1,45 +1,60 @@
-#include "include/device/console_tty.h"
-#include "include/filesystem/dir.h"
-#include "include/filesystem/fs.h"
-#include "include/kernel/init.h"
-#include "include/kernel/interrupt.h"
-#include "include/kernel/thread.h"
-#include "include/library/ccos_print.h"
-#include "include/memory/memory.h"
-#include "include/shell/shell.h"
-#include "include/syscall/syscall.h"
-#include "include/user/library/user_assert.h"
-#include "include/user/program/process.h"
-#include "include/user/program/syscall-init.h"
-#include "include/user/stdio/stdio.h"
+#include "print.h"
+#include "init.h"
+#include "thread.h"
+#include "interrupt.h"
+#include "console.h"
+#include "process.h"
+#include "syscall-init.h"
+#include "syscall.h"
+#include "stdio.h"
+#include "memory.h"
+#include "dir.h"
+#include "fs.h"
+#include "assert.h"
+#include "shell.h"
 
-#include "include/FormatIO/stdio-kernel.h"
-#include "include/device/ide.h"
+#include "ide.h"
+#include "stdio-kernel.h"
 
 void init(void);
 
 int main(void) {
-    early_console_init();                // Initialize the early console
-    init_all();                          // Initialize the entire system
-    thread_exit(running_thread(), true); // Exit the current thread
-    return 0;
+   put_str("KERNEL INITALIZE START\n");
+   init_all();
+
+/*************    写入应用程序    *************/
+//   uint32_t file_size = 5698; 
+//   uint32_t sec_cnt = DIV_ROUND_UP(file_size, 512);
+//   struct disk* sda = &channels[0].devices[0];
+//   void* prog_buf = sys_malloc(file_size);
+//   ide_read(sda, 300, prog_buf, sec_cnt);
+//   int32_t fd = sys_open("/cat", O_CREAT|O_RDWR);
+//   if (fd != -1) {
+//      if(sys_write(fd, prog_buf, file_size) == -1) {
+//         printk("file write error!\n");
+//         while(1);
+//      }
+//   }
+/*************    写入应用程序结束   *************/
+   cls_screen();
+   console_put_str("[CharlieChen114514@localhost /]$ ");
+   thread_exit(running_thread(), true);
+   return 0;
 }
 
-/* init process */
+/* init进程 */
 void init(void) {
-    uint32_t ret_pid = fork(); // Fork a new process
-    if (ret_pid) {             // Parent process
-        int status;
-        int child_pid;
-        /* The init process keeps reaping zombie processes here */
-        while (1) {
-            child_pid = wait(&status); // Wait for the child process to finish
-            printf(
-                "Initializing a child process. Its pid is %d, status is %d\n",
-                child_pid, status);
-        }
-    } else {        // Child process
-        ccos_baseshell(); // Start the shell for the child process
-    }
-    panic("init: Why are you here?:("); // If this is reached, panic
+   uint32_t ret_pid = fork();
+   if(ret_pid) {  // 父进程
+      int status;
+      int child_pid;
+       /* init在此处不停的回收僵尸进程 */
+       while(1) {
+	  child_pid = wait(&status);
+	  printf("Initialzing a child process It`s pid is %d, status is %d\n", child_pid, status);
+       }
+   } else {	  // 子进程
+      my_shell();
+   }
+   panic("init: Why you are here!:(");
 }
