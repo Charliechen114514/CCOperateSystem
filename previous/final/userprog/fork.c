@@ -11,7 +11,7 @@
 extern void intr_exit(void);
 
 /* 将父进程的pcb、虚拟地址位图拷贝给子进程 */
-static int32_t copy_pcb_vaddrbitmap_stack0(struct task_struct* child_thread, struct task_struct* parent_thread) {
+static int32_t copy_pcb_vaddrbitmap_stack0(TaskStruct* child_thread, TaskStruct* parent_thread) {
 /* a 复制pcb所在的整个页,里面包含进程pcb信息及特级0极的栈,里面包含了返回地址, 然后再单独修改个别部分 */
    memcpy(child_thread, parent_thread, PG_SIZE);
    child_thread->pid = fork_pid();
@@ -37,7 +37,7 @@ static int32_t copy_pcb_vaddrbitmap_stack0(struct task_struct* child_thread, str
 }
 
 /* 复制子进程的进程体(代码和数据)及用户栈 */
-static void copy_body_stack3(struct task_struct* child_thread, struct task_struct* parent_thread, void* buf_page) {
+static void copy_body_stack3(TaskStruct* child_thread, TaskStruct* parent_thread, void* buf_page) {
    uint8_t* vaddr_btmp = parent_thread->userprog_vaddr.vaddr_bitmap.bits;
    uint32_t btmp_bytes_len = parent_thread->userprog_vaddr.vaddr_bitmap.btmp_bytes_len;
    uint32_t vaddr_start = parent_thread->userprog_vaddr.vaddr_start;
@@ -77,14 +77,14 @@ static void copy_body_stack3(struct task_struct* child_thread, struct task_struc
 }
 
 /* 为子进程构建thread_stack和修改返回值 */
-static int32_t build_child_stack(struct task_struct* child_thread) {
+static int32_t build_child_stack(TaskStruct* child_thread) {
 /* a 使子进程pid返回值为0 */
    /* 获取子进程0级栈栈顶 */
-   struct intr_stack* intr_0_stack = (struct intr_stack*)((uint32_t)child_thread + PG_SIZE - sizeof(struct intr_stack));
+   InterruptStack* intr_0_stack = (InterruptStack*)((uint32_t)child_thread + PG_SIZE - sizeof(InterruptStack));
    /* 修改子进程的返回值为0 */
    intr_0_stack->eax = 0;
 
-/* b 为switch_to 构建 struct thread_stack,将其构建在紧临intr_stack之下的空间*/
+/* b 为switch_to 构建 ThreadStack,将其构建在紧临intr_stack之下的空间*/
    uint32_t* ret_addr_in_thread_stack  = (uint32_t*)intr_0_stack - 1;
 
    /***   这三行不是必要的,只是为了梳理thread_stack中的关系 ***/
@@ -112,7 +112,7 @@ static int32_t build_child_stack(struct task_struct* child_thread) {
 }
 
 /* 更新inode打开数 */
-static void update_inode_open_cnts(struct task_struct* thread) {
+static void update_inode_open_cnts(TaskStruct* thread) {
    int32_t local_fd = 3, global_fd = 0;
    while (local_fd < MAX_FILES_OPEN_PER_PROC) {
       global_fd = thread->fd_table[local_fd];
@@ -129,7 +129,7 @@ static void update_inode_open_cnts(struct task_struct* thread) {
 }
 
 /* 拷贝父进程本身所占资源给子进程 */
-static int32_t copy_process(struct task_struct* child_thread, struct task_struct* parent_thread) {
+static int32_t copy_process(TaskStruct* child_thread, TaskStruct* parent_thread) {
    /* 内核缓冲区,作为父进程用户空间的数据复制到子进程用户空间的中转 */
    void* buf_page = get_kernel_pages(1);
    if (buf_page == NULL) {
@@ -162,8 +162,8 @@ static int32_t copy_process(struct task_struct* child_thread, struct task_struct
 
 /* fork子进程,内核线程不可直接调用 */
 pid_t sys_fork(void) {
-   struct task_struct* parent_thread = running_thread();
-   struct task_struct* child_thread = get_kernel_pages(1);    // 为子进程创建pcb(task_struct结构)
+   TaskStruct* parent_thread = running_thread();
+   TaskStruct* child_thread = get_kernel_pages(1);    // 为子进程创建pcb(task_struct结构)
    if (child_thread == NULL) {
       return -1;
    }

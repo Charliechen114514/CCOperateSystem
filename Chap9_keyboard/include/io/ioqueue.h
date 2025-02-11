@@ -5,7 +5,7 @@
 #include "include/kernel/thread.h"
 #include "include/kernel/lock.h"
 
-
+/* IO Ring Buffers */
 #define IO_BUF_SIZE     (64)
 
 typedef struct{

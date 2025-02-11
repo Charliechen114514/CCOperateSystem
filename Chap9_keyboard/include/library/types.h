@@ -21,7 +21,7 @@ typedef uint8_t             bool;
 #define false                   (0)
 #endif
 
-#define UINT8_MAX           (0xff)
-#define NULL                ((void*)0)
+#define UINT8_MAX               (0xff)
+#define NULL                    ((void*)0)
 
 #endif

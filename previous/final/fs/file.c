@@ -35,7 +35,7 @@ int32_t get_free_slot_in_global(void) {
 /* 将全局描述符下标安装到进程或线程自己的文件描述符数组fd_table中,
  * 成功返回下标,失败返回-1 */
 int32_t pcb_fd_install(int32_t globa_fd_idx) {
-   struct task_struct* cur = running_thread();
+   TaskStruct* cur = running_thread();
    uint8_t local_fd_idx = 3; // 跨过stdin,stdout,stderr
    while (local_fd_idx < MAX_FILES_OPEN_PER_PROC) {
       if (cur->fd_table[local_fd_idx] == -1) {	// -1表示free_slot,可用

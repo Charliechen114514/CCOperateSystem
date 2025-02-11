@@ -44,7 +44,7 @@ void sema_up(struct semaphore* psema) {
    enum intr_status old_status = intr_disable();
    ASSERT(psema->value == 0);	    
    if (!list_empty(&psema->waiters)) {
-      struct task_struct* thread_blocked = elem2entry(struct task_struct, general_tag, list_pop(&psema->waiters));
+      TaskStruct* thread_blocked = elem2entry(TaskStruct, general_tag, list_pop(&psema->waiters));
       thread_unblock(thread_blocked);
    }
    psema->value++;

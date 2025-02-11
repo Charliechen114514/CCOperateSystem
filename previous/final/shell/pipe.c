@@ -75,7 +75,7 @@ uint32_t pipe_write(int32_t fd, const void* buf, uint32_t count) {
 
 /* 将文件描述符old_local_fd重定向为new_local_fd */
 void sys_fd_redirect(uint32_t old_local_fd, uint32_t new_local_fd) {
-   struct task_struct* cur = running_thread();
+   TaskStruct* cur = running_thread();
    /* 针对恢复标准描述符 */
    if (new_local_fd < 3) {
       cur->fd_table[old_local_fd] = new_local_fd;

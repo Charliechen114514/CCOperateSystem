@@ -14,9 +14,9 @@ extern void intr_exit(void);
 /* 构建用户进程初始上下文信息 */
 void start_process(void* filename_) {
    void* function = filename_;
-   struct task_struct* cur = running_thread();
-   cur->self_kstack += sizeof(struct thread_stack);
-   struct intr_stack* proc_stack = (struct intr_stack*)cur->self_kstack;	 
+   TaskStruct* cur = running_thread();
+   cur->self_kstack += sizeof(ThreadStack);
+   InterruptStack* proc_stack = (InterruptStack*)cur->self_kstack;	 
    proc_stack->edi = proc_stack->esi = proc_stack->ebp = proc_stack->esp_dummy = 0;
    proc_stack->ebx = proc_stack->edx = proc_stack->ecx = proc_stack->eax = 0;
    proc_stack->gs = 0;		 // 用户态用不上,直接初始为0
@@ -30,7 +30,7 @@ void start_process(void* filename_) {
 }
 
 /* 击活页表 */
-void page_dir_activate(struct task_struct* p_thread) {
+void page_dir_activate(TaskStruct* p_thread) {
 /********************************************************
  * 执行此函数时,当前任务可能是线程。
  * 之所以对线程也要重新安装页表, 原因是上一次被调度的可能是进程,
@@ -48,7 +48,7 @@ void page_dir_activate(struct task_struct* p_thread) {
 }
 
 /* 击活线程或进程的页表,更新tss中的esp0为进程的特权级0的栈 */
-void process_activate(struct task_struct* p_thread) {
+void process_activate(TaskStruct* p_thread) {
    ASSERT(p_thread != NULL);
    /* 击活该进程或线程的页表 */
    page_dir_activate(p_thread);
@@ -85,7 +85,7 @@ uint32_t* create_page_dir(void) {
 }
 
 /* 创建用户进程虚拟地址位图 */
-void create_user_vaddr_bitmap(struct task_struct* user_prog) {
+void create_user_vaddr_bitmap(TaskStruct* user_prog) {
    user_prog->userprog_vaddr.vaddr_start = USER_VADDR_START;
    uint32_t bitmap_pg_cnt = DIV_ROUND_UP((0xc0000000 - USER_VADDR_START) / PG_SIZE / 8 , PG_SIZE);
    user_prog->userprog_vaddr.vaddr_bitmap.bits = get_kernel_pages(bitmap_pg_cnt);
@@ -96,7 +96,7 @@ void create_user_vaddr_bitmap(struct task_struct* user_prog) {
 /* 创建用户进程 */
 void process_execute(void* filename, char* name) { 
    /* pcb内核的数据结构,由内核来维护进程信息,因此要在内核内存池中申请 */
-   struct task_struct* thread = get_kernel_pages(1);
+   TaskStruct* thread = get_kernel_pages(1);
    init_thread(thread, name, default_prio); 
    create_user_vaddr_bitmap(thread);
    thread_create(thread, start_process, filename);

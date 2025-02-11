@@ -28,14 +28,14 @@ static bool ioq_empty(struct ioqueue* ioq) {
 }
 
 /* 使当前生产者或消费者在此缓冲区上等待 */
-static void ioq_wait(struct task_struct** waiter) {
+static void ioq_wait(TaskStruct** waiter) {
    ASSERT(*waiter == NULL && waiter != NULL);
    *waiter = running_thread();
    thread_block(TASK_BLOCKED);
 }
 
 /* 唤醒waiter */
-static void wakeup(struct task_struct** waiter) {
+static void wakeup(TaskStruct** waiter) {
    ASSERT(*waiter != NULL);
    thread_unblock(*waiter); 
    *waiter = NULL;

@@ -366,7 +366,7 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 
 /* 将文件描述符转化为文件表的下标 */
 uint32_t fd_local2global(uint32_t local_fd) {
-   struct task_struct* cur = running_thread();
+   TaskStruct* cur = running_thread();
    int32_t global_fd = cur->fd_table[local_fd];  
    ASSERT(global_fd >= 0 && global_fd < MAX_FILE_OPEN);
    return (uint32_t)global_fd;
@@ -796,7 +796,7 @@ char* sys_getcwd(char* buf, uint32_t size) {
    if (io_buf == NULL) {
       return NULL;
    }
-   struct task_struct* cur_thread = running_thread();
+   TaskStruct* cur_thread = running_thread();
    int32_t parent_inode_nr = 0;
    int32_t child_inode_nr = cur_thread->cwd_inode_nr;
    ASSERT(child_inode_nr >= 0 && child_inode_nr < 4096);      // 最大支持4096个inode

@@ -7,6 +7,8 @@
         "keyboard_ascii.h": "c",
         "io.h": "c",
         "keyboard_mappings.h": "c",
-        "ioqueue.h": "c"
+        "ioqueue.h": "c",
+        "types.h": "c",
+        "lock.h": "c"
     }
 }
