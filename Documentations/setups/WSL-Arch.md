@@ -34,6 +34,14 @@
       ./configure --prefix=/path/to/your/prefix --enable-debugger --enable-disasm --enable-iodebug --enable-x86-debugger --with-x --with-x11
       ```
 
+      > :heavy_exclamation_mark: 请注意，检查你的日志，如果没有出现`X -- Headerschecking for X... libraries , headers `的时候，或者是是任何出现bochs的编译没有找到XServer的情况，对于这里，请先使用install X Server的开发文件，截止到2025年2月12日，你仍然可以通过下载xorg-server或者是您自行决定的更加轻量或者重量的包
+      >
+      > ```
+      > yay -S xorg-server
+      > ```
+      >
+      > 对于WSL，你需要设置转发端口，你可以设置`export DISPLAY=:0.0`，让他在当前端口使能xorg-server的转发IP和端口，随后，在windows下使用任何一款可以接受xserver转发的软件接收，您可以使用XMing，不需要做热门和设置就能直接将操作系统连接到您的Windows窗口上！
+
       但是笔者的版本不使用prefix，我想偷懒，毕竟我是在虚拟机和样机中开发，无所谓环境，如果你有强烈的环境洁癖，请设置好prefix路径
 
    4. ```

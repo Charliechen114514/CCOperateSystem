@@ -24,6 +24,32 @@
 
 ​	That all the case! Author has been tested running in WSL, Ubuntu And Arch Linux, so I could provide the instructions of setup for you! See the below tutorials for the details! 
 
+![GUI](https://img.shields.io/badge/Screenshots-See_The_Runtime_Screenshots-red)
+
+​	Booting without VERBOSE
+
+![runtimes1](./readme.assets/runtimes-boot.png)
+
+​	See Help for extension usage
+
+![runtimes-help](./readme.assets/runtimes-help.png)
+
+​	Try Clear (Ctrl + L for the clear screen / Ctrl + U clear the input)
+
+![runtimes-show-clearprev](./readme.assets/runtimes-show-clearprev.png)
+
+![runtimes-show-clearafter](./readme.assets/runtimes-show-clearafter.png)
+
+​	Try File System(Current pwd accessible)
+
+![filesystem-1](./readme.assets/filesystem-1.png)
+
+ 	Also with page faults (Current run none disk ls)
+
+![page-faults-hanlder](./readme.assets/page-faults-hanlder.png)
+
+
+
 ![GUI](https://img.shields.io/badge/Documentation-Where_And_How_Should_I_Start-yellow)
 
 See here for the start!

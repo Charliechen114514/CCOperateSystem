@@ -36,6 +36,8 @@
 
       但是笔者的版本不使用prefix，我想偷懒，毕竟我是在虚拟机和样机中开发，无所谓环境，如果你有强烈的环境洁癖，请设置好prefix路径
 
+      > TIPS: WSL Ubuntu默认的转发的窗口非常的小，如果看着不方便， 考虑使用 Windows 的 XServer 服务接受接受XServer的窗口，看着舒服一些！
+
    4. ```
       sudo make -j4 		# compile
       sudo make install 	# install
@@ -44,7 +46,7 @@
       # export PATH=/path/to/your/bochs_install_folder:$PATH
       ```
 
-      
+      到这样，我们的工具链就搭建结束了！
 
 4. 一个良好的习惯就是确认他们都在！
 

@@ -24,6 +24,32 @@
 
  就是这样！作者已经在 WSL、Ubuntu 和 Arch Linux 中进行了测试，因此我可以为您提供设置说明！有关详细信息，请参阅以下教程！
 
+![GUI](https://img.shields.io/badge/Screenshots-See_The_Runtime_Screenshots-red)
+
+​	无冗余信息的启动界面
+
+![runtimes1](./readme.assets/runtimes-boot.png)
+
+​	看看用法：
+
+![runtimes-help](./readme.assets/runtimes-help.png)
+
+​	清空（CTRL + L清屏幕，CTRL + U清输入）
+
+![runtimes-show-clearprev](./readme.assets/runtimes-show-clearprev.png)
+
+![runtimes-show-clearafter](./readme.assets/runtimes-show-clearafter.png)
+
+​	文件系统初试
+
+![filesystem-1](./readme.assets/filesystem-1.png)
+
+ 	异常处理显示：
+
+![page-faults-hanlder](./readme.assets/page-faults-hanlder.png)
+
+
+
 ![GUI](https://img.shields.io/badge/Documentation-Where_And_How_Should_I_Start-yellow)
 
 从这里开始！
