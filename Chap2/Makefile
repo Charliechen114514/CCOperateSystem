@@ -10,7 +10,7 @@ all:
 	make clean;make;make upload
 
 clean:
-	rm -f *.bin *.out
+	rm -f *.bin *.out *.img
 
 upload:
 	rm -f ${BOOT_IMG}
