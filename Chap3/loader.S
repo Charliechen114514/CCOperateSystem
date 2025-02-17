@@ -7,36 +7,34 @@ section loader vstart=LOADER_BASE_ADDR
 
 ; ------------------------------------------
 ; mbr_print_strings
-; å‡½æ•°å: mbr_print_strings
-; å‚æ•°: si - å­—ç¬¦ä¸²åœ°å€
-; å‚æ•°: cl - è¡Œå·
+; º¯ÊıÃû: mbr_print_strings
+; ²ÎÊı: si - ×Ö·û´®µØÖ·
+; ²ÎÊı: cl - ĞĞºÅ
 ; ------------------------------------------
 loader_print_strings:
-    push di            ; ä¿å­˜ di å¯„å­˜å™¨
+    push di            ; ±£´æ di ¼Ä´æÆ÷
     push ax
     mov ax, 0xA0
-    mov di, 0x00       ; è®¾ç½® gs æ®µçš„åç§»åœ°å€ä¸º 0
+    mov di, 0x00       ; ÉèÖÃ gs ¶ÎµÄÆ«ÒÆµØÖ·Îª 0
     mul cl
     add di, ax
 
 loader_store_loop:
-    lodsb                   ; åŠ è½½ä¸€ä¸ªå­—ç¬¦åˆ° alï¼Œå¹¶æ›´æ–° si
-    or al, al               ; æ£€æŸ¥å­—ç¬¦æ˜¯å¦ä¸º 0ï¼ˆå­—ç¬¦ä¸²ç»“æŸç¬¦ï¼‰
-    jz loader_done_print    ; å¦‚æœå­—ç¬¦ä¸º 0ï¼Œç»“æŸå¾ªç¯
+    lodsb                   ; ¼ÓÔØÒ»¸ö×Ö·ûµ½ al£¬²¢¸üĞÂ si
+    or al, al               ; ¼ì²é×Ö·ûÊÇ·ñÎª 0£¨×Ö·û´®½áÊø·û£©
+    jz loader_done_print    ; Èç¹û×Ö·ûÎª 0£¬½áÊøÑ­»·
 
-    ; å­˜å‚¨å­—ç¬¦åˆ° [gs:di]
-    mov [gs:di], al    ; å°†å­—ç¬¦å­˜å‚¨åˆ° gs:di
-    inc di             ; æ›´æ–° diï¼ŒæŒ‡å‘ä¸‹ä¸€ä¸ªå­˜å‚¨ä½ç½®
+    ; ´æ´¢×Ö·ûµ½ [gs:di]
+    mov [gs:di], al    ; ½«×Ö·û´æ´¢µ½ gs:di
+    inc di             ; ¸üĞÂ di£¬Ö¸ÏòÏÂÒ»¸ö´æ´¢Î»ÖÃ
 
-    ; å­˜å‚¨ 0xA4 åˆ° [gs:di]
+    ; ´æ´¢ 0xA4 µ½ [gs:di]
     mov byte [gs:di], PRINT_STYLE
-    inc di             ; æ›´æ–° diï¼ŒæŒ‡å‘ä¸‹ä¸€ä¸ªå­˜å‚¨ä½ç½®
+    inc di             ; ¸üĞÂ di£¬Ö¸ÏòÏÂÒ»¸ö´æ´¢Î»ÖÃ
 
-    jmp loader_store_loop     ; ç»§ç»­å¤„ç†ä¸‹ä¸€ä¸ªå­—ç¬¦
+    jmp loader_store_loop     ; ¼ÌĞø´¦ÀíÏÂÒ»¸ö×Ö·û
 
 loader_done_print:
     pop ax             ; resume ax
     pop di             ; resume di
-    ret                ; è¿”å›
-
-enter_loader db "Enter the Loader Sections Success!", 0
+    ret                ; ·µ»Ø
