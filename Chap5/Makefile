@@ -13,7 +13,7 @@ KERNEL_ASM_DIR	= arch/kernel
 
 DEBUG_FLAG	:=
 # Modify the GCC for the usage
-GCC			= gcc-4.4
+GCC			= gcc
 
 # Some dependencies macro
 KERNEL_MAIN_OBJ = ${OBJ_DIR}/ccos_print.o ${OBJ_DIR}/_ccos_print.o ${OBJ_DIR}/main.o
