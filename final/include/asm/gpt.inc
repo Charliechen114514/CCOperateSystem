@@ -79,7 +79,9 @@ GDT_LIMIT   equ   GDT_SIZE -	1
 
 ; reserved 60 empty slots
 times 60 dq 0					 
+%endmacro
 
+%macro  KERNEL_INFO 0
 ; memorize the memory we owns, we will setup user pool then
 total_mem_bytes dd 0					 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

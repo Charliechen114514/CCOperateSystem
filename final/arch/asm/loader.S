@@ -6,7 +6,11 @@
 
 section loader vstart=LOADER_BASE_ADDR
 
+; see gpt.inc for details
+; we place the GPT table and kernel info here
 GPT_TABLE
+; we place the kernel fetch info here
+KERNEL_INFO
 
 ; this it's the place we load the operating system
 loader_start:
