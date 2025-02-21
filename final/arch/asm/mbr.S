@@ -2,6 +2,7 @@
 %include "asm/print.inc"
 section mbr vstart=MBR_VSTART
     ; Load Segments
+    cli
     mov ax, cs
     mov ds, ax
     mov es, ax
@@ -19,8 +20,8 @@ section mbr vstart=MBR_VSTART
     int 0x10
 
 ; Print the Hello Strings on the screen!
-; ÉèÖÃ¹â±êµ½µÚÒ»ÐÐ¡¢µÚÒ»ÁÐ (DH = 0, DL = 0)
-    mov si, welcome     ; ½«×Ö·û´®µÄµØÖ·´«µÝ¸ø si
+; ï¿½ï¿½ï¿½Ã¹ï¿½êµ½ï¿½ï¿½Ò»ï¿½Ð¡ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ (DH = 0, DL = 0)
+    mov si, welcome     ; ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Äµï¿½Ö·ï¿½ï¿½ï¿½Ý¸ï¿½ si
     mov cx, 0
     call mbr_print_strings  ; string printer
     ; After this, we shell check the hard disk for setup
@@ -119,37 +120,37 @@ check_disk:
 
 ; ------------------------------------------
 ; mbr_print_strings
-; º¯ÊýÃû: mbr_print_strings
-; ²ÎÊý: si - ×Ö·û´®µØÖ·
-; ²ÎÊý: cl - ÐÐºÅ
+; ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: mbr_print_strings
+; ï¿½ï¿½ï¿½ï¿½: si - ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
+; ï¿½ï¿½ï¿½ï¿½: cl - ï¿½Ðºï¿½
 ; ------------------------------------------
 mbr_print_strings:
-    push di            ; ±£´æ di ¼Ä´æÆ÷
+    push di            ; ï¿½ï¿½ï¿½ï¿½ di ï¿½Ä´ï¿½ï¿½ï¿½
     push ax
     mov ax, NEW_LINE_LENGTH
-    mov di, 0x00       ; ÉèÖÃ gs ¶ÎµÄÆ«ÒÆµØÖ·Îª 0
+    mov di, 0x00       ; ï¿½ï¿½ï¿½ï¿½ gs ï¿½Îµï¿½Æ«ï¿½Æµï¿½Ö·Îª 0
     mul cl
     add di, ax
 
 store_loop:
-    lodsb              ; ¼ÓÔØÒ»¸ö×Ö·ûµ½ al£¬²¢¸üÐÂ si
-    or al, al          ; ¼ì²é×Ö·ûÊÇ·ñÎª 0£¨×Ö·û´®½áÊø·û£©
-    jz done_print      ; Èç¹û×Ö·ûÎª 0£¬½áÊøÑ­»·
+    lodsb              ; ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ alï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ si
+    or al, al          ; ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ç·ï¿½Îª 0ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    jz done_print      ; ï¿½ï¿½ï¿½ï¿½Ö·ï¿½Îª 0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
 
     ; load chars
-    mov [gs:di], al    ; ½«×Ö·û´æ´¢µ½ gs:di
-    inc di             ; ¸üÐÂ di£¬Ö¸ÏòÏÂÒ»¸ö´æ´¢Î»ÖÃ
+    mov [gs:di], al    ; ï¿½ï¿½ï¿½Ö·ï¿½ï¿½æ´¢ï¿½ï¿½ gs:di
+    inc di             ; ï¿½ï¿½ï¿½ï¿½ diï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½æ´¢Î»ï¿½ï¿½
 
     ; load styles
     mov byte [gs:di], PRINT_STYLE
-    inc di             ; ¸üÐÂ di£¬Ö¸ÏòÏÂÒ»¸ö´æ´¢Î»ÖÃ
+    inc di             ; ï¿½ï¿½ï¿½ï¿½ diï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½æ´¢Î»ï¿½ï¿½
 
-    jmp store_loop     ; ¼ÌÐø´¦ÀíÏÂÒ»¸ö×Ö·û
+    jmp store_loop     ; ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½
 
 done_print:
     pop ax             ; resume ax
     pop di             ; resume di
-    ret                ; ·µ»Ø
+    ret                ; ï¿½ï¿½ï¿½ï¿½
 ; ------------------------------------
 ; tell the data
 ; ------------------------------------
