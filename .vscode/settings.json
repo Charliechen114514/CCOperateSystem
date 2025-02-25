@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "ccos_print.h": "c"
+        "ccos_print.h": "c",
+        "timer.h": "c",
+        "timer_settings.h": "c"
     }
 }

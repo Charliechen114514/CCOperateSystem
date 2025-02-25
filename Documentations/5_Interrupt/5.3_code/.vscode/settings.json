@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "interrupt.h": "c",
+        "selectors.h": "c",
+        "types.h": "c",
+        "ccos_print.h": "c",
+        "settings.h": "c",
+        "pci.h": "c",
+        "bit_tools.h": "c",
+        "init.h": "c"
+    }
+}
