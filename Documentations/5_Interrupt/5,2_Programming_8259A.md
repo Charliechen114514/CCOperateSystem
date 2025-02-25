@@ -168,3 +168,7 @@ ICW2是设置起始中断向量号的。注意，ICW2需要写入到主片的0x2
 ​	RIS,Read Interrupt register Select,读取中断寄存器选择位，顾名思义，就是用此位选择待读取的寄存器。有点类似显卡寄存器中的索引的意思。若RIS为L表示选择ISR寄存器，若RIS为0,表示选择IRR寄存器。RR的值为1，这两个寄存器就可被读取
 
 ​	说完了，好累，就先这样。
+
+## 下一篇
+
+[动手实现我们的中断子系统](./5.3_Implement_InterruptSubSystem_1.md)
