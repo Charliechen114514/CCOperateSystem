@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ccos_print.h": "c",
+        "kernel_assert.h": "c"
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "test.h": "c",
+        "ccos_print.h": "c",
+        "kernel_assert.h": "c",
+        "timer.h": "c"
+    }
+}
