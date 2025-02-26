@@ -54,7 +54,7 @@ LD			= ld
 KERNEL_MAIN_OBJ = 	${OBJ_DIR}/main.o ${OBJ_DIR}/init.o $(OBJ_DIR)/ccos_print.o \
 					${OBJ_DIR}/_ccos_print.o ${OBJ_DIR}/_interrupt_asm.o \
 					${OBJ_DIR}/pci.o ${OBJ_DIR}/interrupt.o ${OBJ_DIR}/timer.o \
-					${OBJ_DIR}/kernel_assert.o
+					${OBJ_DIR}/kernel_assert.o ${OBJ_DIR}/string.o
 
 
 ${BOOT_IMG}: \
@@ -83,6 +83,8 @@ ${KERNEL_MAIN_OBJ}:
 	${GCC} ${KERMAIN_CFLAGS} -c ${KER_C_DIR}/main.c -o ${OBJ_DIR}/main.o
 	${GCC} ${KERMAIN_CFLAGS} -c ${KER_C_DIR}/device/timer.c -o ${OBJ_DIR}/timer.o
 	${GCC} ${KERMAIN_CFLAGS} -c ${KER_C_DIR}/library/kernel_assert.c -o ${OBJ_DIR}/kernel_assert.o
+	${GCC} ${KERMAIN_CFLAGS} -c ${KER_C_DIR}/library/string.c -o ${OBJ_DIR}/string.o
+
 # Phony's are the scrpits usage
 .PHONY: clean upload disasm all rebuild test
 
