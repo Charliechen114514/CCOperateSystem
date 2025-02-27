@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "list.h": "c",
+        "test.h": "c",
+        "private_test.h": "c",
+        "types.h": "c",
+        "interrupt.h": "c"
+    }
+}

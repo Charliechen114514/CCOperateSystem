@@ -139,7 +139,7 @@ static void test_k_strchrs(void)
     TEST_ASSERT(k_strchrs(str, 'o') == 2);
 
     // Edge case: Character is not found
-    TEST_ASSERT(k_strchrs(str, 'x') == 1);
+    TEST_ASSERT(k_strchrs(str, 'x') == 0);
 }
 
 void run_strings_test(void)

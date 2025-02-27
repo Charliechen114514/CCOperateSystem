@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "types.h": "c",
+        "kernel_assert.h": "c",
+        "ccos_print.h": "c",
+        "bitmap.h": "c",
+        "interrupt.h": "c",
+        "test.h": "c"
+    }
+}
