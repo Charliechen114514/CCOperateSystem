@@ -19,11 +19,6 @@
 #define PDE_IDX(addr) ((addr & 0xffc00000) >> 22)
 #define PTE_IDX(addr) ((addr & 0x003ff000) >> 12)
 
-/* 0xc0000000 is the starting address of the kernel's virtual memory, starting
- * at 3GB. 0x100000 skips the lower 1M of memory, ensuring that the virtual
- * address space is logically contiguous. */
-#define K_HEAP_START 0xc0100000
-
 /* Memory pool structure, creating two instances for managing the kernel and
  * user memory pools */
 struct pool {
@@ -523,7 +518,7 @@ void sys_free(void *ptr) {
 
         /* Determine whether it's a thread or a process */
         if (running_thread()->pgdir == NULL) {
-            ASSERT((uint32_t)ptr >= K_HEAP_START);
+            ASSERT((uint32_t)ptr >= KERNEL_HEAP_START);
             PF = PF_KERNEL;
             mem_pool = &kernel_pool;
         } else {
@@ -638,7 +633,7 @@ static void mem_pool_init(uint32_t all_mem) {
     kernel_vaddr.vaddr_bitmap.bits =
         (void *)(MEM_BITMAP_BASE + kbm_length + ubm_length);
 
-    kernel_vaddr.vaddr_start = K_HEAP_START;
+    kernel_vaddr.vaddr_start = KERNEL_HEAP_START;
     bitmap_init(&kernel_vaddr.vaddr_bitmap);
     verbose_write("   mem_pool_init done\n");
 }

@@ -3,6 +3,10 @@
 
 #define PGSIZE              (4096)
 #define MEM_BITMAP_BASE     (0xc009a000)
+
+/* 0xc0000000 is the starting address of the kernel's virtual memory, starting
+ * at 3GB. 0x100000 skips the lower 1M of memory, ensuring that the virtual
+ * address space is logically contiguous. */
 #define KERNEL_HEAP_START   (0xc0100000)
 
 #define	    PG_P_1	    1	// 页表项或页目录项存在属性位

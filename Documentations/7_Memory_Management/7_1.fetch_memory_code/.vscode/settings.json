@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "memory.h": "c",
+        "bitmap.h": "c",
+        "types.h": "c",
+        "ccos_print.h": "c",
+        "init.h": "c",
+        "kernel_assert.h": "c",
+        "memory_settings.h": "c"
+    }
+}
