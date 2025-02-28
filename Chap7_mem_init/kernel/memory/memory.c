@@ -75,7 +75,12 @@ static void page_table_add(void* _vaddr, void* _page_phyaddr) {
     uint32_t vaddr = (uint32_t)_vaddr, page_phyaddr = (uint32_t)_page_phyaddr;
     uint32_t* pde = pde_ptr(vaddr);
     uint32_t* pte = pte_ptr(vaddr);
-
+    __ccos_display_int(vaddr);
+    __ccos_putchar('\n');
+    __ccos_display_int((uint32_t)pde);
+    __ccos_putchar('\n');
+    __ccos_display_int((uint32_t)pte);
+    while(1);
     // Ensure the pde is exsited!
     if (*pde & 0x00000001) {
         ASSERT(!(*pte & 0x00000001));

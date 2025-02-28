@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "memory_tools.h": "c",
+        "types.h": "c",
+        "memory_settings.h": "c",
+        "kernel_assert.h": "c"
+    }
+}
