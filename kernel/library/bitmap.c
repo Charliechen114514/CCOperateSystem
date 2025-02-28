@@ -1,9 +1,6 @@
 #include "include/library/bitmap.h"
-#include "include/kernel/interrupt.h"
-#include "include/library/ccos_print.h"
 #include "include/library/kernel_assert.h"
 #include "include/library/string.h"
-#include "include/library/types.h"
 
 /* Initialize the bitmap btmp */
 void bitmap_init(Bitmap *btmp) {
@@ -11,13 +8,13 @@ void bitmap_init(Bitmap *btmp) {
            btmp->btmp_bytes_len); // Set all bits to 0 (clear the bitmap)
 }
 
-/* Check if the bit at bit_idx is set to 1. Return true if it is, otherwise
+/* Check if the bit at bit_idx is set to 1. Return the bytes if it is, otherwise
  * false */
 bool bitmap_scan_test(Bitmap *btmp, uint32_t bit_idx) {
     uint32_t byte_idx = bit_idx / 8; // Integer division to get the byte index
     uint32_t bit_odd =
         bit_idx % 8; // Remainder gives the bit position within the byte
-    return (btmp->bits[byte_idx] & (BITMAP_MASK << bit_odd)); // Test the bit
+    return !!(btmp->bits[byte_idx] & (BITMAP_MASK << bit_odd)); // Test the bit
 }
 
 /* Find cnt consecutive free bits in the bitmap. Return the starting bit index

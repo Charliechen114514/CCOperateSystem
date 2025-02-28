@@ -12,7 +12,7 @@ void list_init(list *list) {
 /* Insert an element before a given element (before the 'before' element) */
 void list_insert_before(list_elem *before, list_elem *elem) {
     Interrupt_Status old_status =
-        disable_intr(); // Disable interrupts to ensure atomicity
+        set_intr_state(INTR_OFF); // Disable interrupts to ensure atomicity
 
     /* Update the previous node of 'before' to point to 'elem' */
     before->prev->next = elem;
@@ -41,7 +41,7 @@ void list_append(list *plist, list_elem *elem) {
 /* Remove an element from the list */
 void list_remove(list_elem *pelem) {
     Interrupt_Status old_status =
-        disable_intr(); // Disable interrupts to ensure atomicity
+        set_intr_state(INTR_OFF); // Disable interrupts to ensure atomicity
 
     /* Update the previous node of 'pelem' to point to its next node */
     pelem->prev->next = pelem->next;
@@ -103,7 +103,5 @@ uint32_t list_len(list *plist) {
 
 /* Check if the list is empty. Return true if empty, false otherwise */
 bool list_empty(list *plist) {
-    return (plist->head.next == &plist->tail
-                ? true
-                : false); // If head points to tail, the list is empty
+    return plist->head.next == &plist->tail; // If head points to tail, the list is empty
 }

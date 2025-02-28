@@ -84,16 +84,14 @@ times 60 dq 0
 %macro  KERNEL_INFO 0
 ; memorize the memory we owns, we will setup user pool then
 total_mem_bytes dd 0					 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;以下是定义gdt的指针，前2字节是gdt界限，后4字节是gdt起始地址
+; gpt ptr base
 GDT_PTR  
-        dw  GDT_LIMIT 
-        dd  GDT_BASE
-
-;人工对齐:total_mem_bytes4字节+GDT_PTR6字节+ards_buf244字节+ards_nr2,共256字节
+    dw  GDT_LIMIT 
+    dd  GDT_BASE
+    
+; kernel infos
+; buf for the 244 and record how many ards buffer actually
 ards_buf times 244 db 0
-ards_nr dw 0		      ;用于记录ards结构体数量
-
-
+ards_nr dw 0		         
 %endmacro
+

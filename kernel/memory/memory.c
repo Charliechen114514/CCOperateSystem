@@ -19,11 +19,6 @@
 #define PDE_IDX(addr) ((addr & 0xffc00000) >> 22)
 #define PTE_IDX(addr) ((addr & 0x003ff000) >> 12)
 
-/* 0xc0000000 is the starting address of the kernel's virtual memory, starting
- * at 3GB. 0x100000 skips the lower 1M of memory, ensuring that the virtual
- * address space is logically contiguous. */
-#define K_HEAP_START 0xc0100000
-
 /* Memory pool structure, creating two instances for managing the kernel and
  * user memory pools */
 struct pool {
@@ -134,17 +129,13 @@ static void page_table_add(void *_vaddr, void *_page_phyaddr) {
      * *********************************************************/
     /* Check the P bit of the directory entry, if it is 1, it indicates the
      * table already exists */
-    if (*pde & 0x00000001) {
-        ASSERT(!(*pte & 0x00000001));
-
-        if (!(*pte & 0x00000001)) { // If the page table entry does not exist,
-                                    // create it
-            *pte =
-                (page_phyaddr | PG_US_U | PG_RW_W | PG_P_1); // US=1, RW=1, P=1
-        } else { // In debug mode, this will not execute because the assert will
-                 // be triggered first. In non-debug mode, this will trigger
-                 // PANIC.
+    if (*pde & PG_P_1) {
+        // Check if the PTE exists. If it does, no error; otherwise, create it
+        if (*pte & PG_P_1) {
             KERNEL_PANIC("pte repeat");
+        } else {
+            *pte = (page_phyaddr | PG_US_U | PG_RW_W |
+                    PG_P_1); // Create the PTE with necessary flags
         }
     } else { // If the page directory entry does not exist, create it first,
              // then create the page table entry.
@@ -152,15 +143,15 @@ static void page_table_add(void *_vaddr, void *_page_phyaddr) {
         uint32_t pde_phyaddr = (uint32_t)palloc(&kernel_pool);
         *pde = (pde_phyaddr | PG_US_U | PG_RW_W | PG_P_1);
 
-        /*******************   Ensure the page table is cleared
-         * ********************* The physical memory corresponding to the
+        /*******************   
+         * Ensure the page table is cleared The physical memory corresponding to the
          * pde_phyaddr should be cleared to avoid outdated data turning into
          * page table entries, which would cause confusion in the page table.
          * The high 20 bits of pte will map to the physical start address of the
          * page table pointed by pde. */
         memset((void *)((int)pte & 0xfffff000), 0, PGSIZE);
         /************************************************************/
-        ASSERT(!(*pte & 0x00000001));
+        ASSERT(!(*pte & PG_P_1));
         *pte = (page_phyaddr | PG_US_U | PG_RW_W | PG_P_1); // US=1, RW=1, P=1
     }
 }
@@ -523,7 +514,7 @@ void sys_free(void *ptr) {
 
         /* Determine whether it's a thread or a process */
         if (running_thread()->pgdir == NULL) {
-            ASSERT((uint32_t)ptr >= K_HEAP_START);
+            ASSERT((uint32_t)ptr >= KERNEL_HEAP_START);
             PF = PF_KERNEL;
             mem_pool = &kernel_pool;
         } else {
@@ -638,7 +629,7 @@ static void mem_pool_init(uint32_t all_mem) {
     kernel_vaddr.vaddr_bitmap.bits =
         (void *)(MEM_BITMAP_BASE + kbm_length + ubm_length);
 
-    kernel_vaddr.vaddr_start = K_HEAP_START;
+    kernel_vaddr.vaddr_start = KERNEL_HEAP_START;
     bitmap_init(&kernel_vaddr.vaddr_bitmap);
     verbose_write("   mem_pool_init done\n");
 }
