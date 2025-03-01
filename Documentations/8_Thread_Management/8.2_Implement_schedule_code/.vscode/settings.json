@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "memory_settings.h": "c",
+        "memory.h": "c",
+        "kernel_assert.h": "c",
+        "init.h": "c",
+        "thread.h": "c",
+        "types.h": "c",
+        "thread_settings.h": "c"
+    }
+}

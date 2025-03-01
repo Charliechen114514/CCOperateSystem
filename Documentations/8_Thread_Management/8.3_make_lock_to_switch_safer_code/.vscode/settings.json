@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "kernel_assert.h": "c",
+        "lock.h": "c",
+        "console_tty.h": "c",
+        "thread.h": "c"
+    }
+}

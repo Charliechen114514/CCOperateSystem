@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "memory.h": "c",
+        "types.h": "c",
+        "memory_settings.h": "c",
+        "thread.h": "c"
+    }
+}

@@ -1,31 +1,53 @@
 #ifndef THREAD_H
 #define THREAD_H
+
 #include "include/library/list.h"
 #include "include/library/types.h"
 #include "include/memory/memory.h"
 #include "include/memory/memory_settings.h"
-#define TASK_NAME_ARRAY_SZ          (16)
-#define TASK_MAGIC                  (0x11451419)
-#define MAX_FILES_OPEN_PER_PROC     (8)
 
+#define TASK_NAME_ARRAY_SZ (16)     // Maximum length of a thread name
+#define TASK_MAGIC (0x11451419)     // Magic number for stack integrity check
+#define MAX_FILES_OPEN_PER_PROC (8) // Maximum number of open files per process
+
+/**
+ * @brief Function pointer type for thread execution.
+ *
+ * A thread function should accept a single void pointer argument.
+ */
 typedef void (*TaskFunction)(void *);
+
+/**
+ * @brief Type definition for process IDs.
+ */
 typedef int16_t pid_t;
 
+/**
+ * @brief Enumeration of thread states.
+ *
+ * Represents the possible states a thread can be in during execution.
+ */
 typedef enum {
-    TASK_RUNNING,
-    TASK_READY,
-    TASK_BLOCKED,
-    TASK_WAITING,
-    TASK_HANGING,
-    TASK_DIED
+    TASK_RUNNING, // Thread is currently executing
+    TASK_READY,   // Thread is ready to execute but not running
+    TASK_BLOCKED, // Thread is blocked and waiting for an event
+    TASK_WAITING, // Thread is waiting for a resource
+    TASK_HANGING, // Thread is suspended
+    TASK_DIED     // Thread has terminated
 } TaskStatus;
 
+/**
+ * @brief Structure for the interrupt stack.
+ *
+ * This structure stores the register values when an interrupt occurs.
+ * It is used to save and restore the thread's execution context.
+ */
 typedef struct {
-    uint32_t vec_no;
+    uint32_t vec_no; // Interrupt vector number
     uint32_t edi;
     uint32_t esi;
     uint32_t ebp;
-    uint32_t esp_dummy;
+    uint32_t esp_dummy; // Placeholder for alignment
     uint32_t ebx;
     uint32_t edx;
     uint32_t ecx;
@@ -35,73 +57,212 @@ typedef struct {
     uint32_t es;
     uint32_t ds;
 
-    /* from low to high level */
-    uint32_t err_code; // err_code会被压入在eip之后
-    void (*eip)(void);
-    uint32_t cs;
-    uint32_t eflags;
-    void *esp;
-    uint32_t ss;
+    /* From low to high privilege level */
+    uint32_t err_code; // Error code pushed by the processor
+    void (*eip)(void); // Instruction pointer at the time of interrupt
+    uint32_t cs;       // Code segment
+    uint32_t eflags;   // CPU flags
+    void *esp;         // Stack pointer
+    uint32_t ss;       // Stack segment
 } Interrupt_Stack;
 
+/**
+ * @brief Structure representing a thread's stack.
+ *
+ * Defines the stack layout for context switching.
+ */
 typedef struct {
     uint32_t ebp;
     uint32_t ebx;
     uint32_t edi;
     uint32_t esi;
 
-    /* 线程第一次执行时,eip指向待调用的函数kernel_thread
-    其它时候,eip是指向switch_to的返回地址*/
+    /**
+     * @brief Entry point for the thread.
+     *
+     * When the thread is first scheduled, this function is called
+     * with the specified function and argument.
+     */
     void (*eip)(TaskFunction func, void *func_arg);
 
-    /*****   以下仅供第一次被调度上cpu时使用   ****/
-    /* 参数_ret只为占位置充数为返回地址 */
-    void(*_retaddr);
-    TaskFunction function; // 由Kernel_thread所调用的函数名
-    void *func_arg;        // 由Kernel_thread所调用的函数所需的参数
+    /* These fields are used only when the thread is first scheduled. */
+    void(*_retaddr);       // Placeholder return address
+    TaskFunction function; // Function to be executed by the thread
+    void *func_arg;        // Argument to be passed to the function
 } ThreadStack;
 
-/* 进程或线程的pcb,程序控制块 */
+/**
+ * @brief Process Control Block (PCB) structure for threads and processes.
+ *
+ * This structure stores the execution context, scheduling information,
+ * and resources associated with a thread or process.
+ */
 typedef struct {
-    uint32_t* self_kstack;	 // 各内核线程都用自己的内核栈
-    pid_t pid;
-    TaskStatus status;
-    char name[TASK_NAME_ARRAY_SZ];
-    uint8_t priority;
-    uint8_t ticks;	   // 每次在处理器上执行的时间嘀嗒数
- /* 此任务自上cpu运行后至今占用了多少cpu嘀嗒数,
-  * 也就是此任务执行了多久*/
-    uint32_t elapsed_ticks;
- /* general_tag的作用是用于线程在一般的队列中的结点 */
-    list_elem general_tag;				    
- /* all_list_tag的作用是用于线程队列thread_all_list中的结点 */
+    uint32_t *self_kstack;         // Pointer to the kernel stack of the thread
+    pid_t pid;                     // Process ID
+    TaskStatus status;             // Current status of the thread
+    char name[TASK_NAME_ARRAY_SZ]; // Name of the thread
+    uint8_t priority;              // Thread priority level
+    uint8_t ticks;                 // Time slices allocated per execution cycle
+    uint32_t elapsed_ticks;        // Total CPU time consumed
+
+    /**
+     * @brief General list element for scheduling queues.
+     *
+     * Used to manage the thread in general scheduling queues.
+     */
+    list_elem general_tag;
+
+    /**
+     * @brief List element for all threads.
+     *
+     * Used to track all threads in the system.
+     */
     list_elem all_list_tag;
-    uint32_t* pgdir;              // 进程自己页表的虚拟地址
-    VirtualMemoryHandle     userprog_vaddr;   // 用户进程的虚拟地址
-    MemoryBlockDescriptor   u_block_desc[DESC_CNT];   // 用户进程内存块描述符
-    int32_t fd_table[MAX_FILES_OPEN_PER_PROC];	// 已打开文件数组
-    uint32_t cwd_inode_nr;	 // 进程所在的工作目录的inode编号
-    pid_t parent_pid;		 // 父进程pid
-    int8_t  exit_status;         // 进程结束时自己调用exit传入的参数
-    uint32_t stack_magic;	 // 用这串数字做栈的边界标记,用于检测栈的溢出
- }TaskStruct;
- 
- extern list thread_ready_list;
- extern list thread_all_list;
- 
- void thread_create(TaskStruct* pthread, TaskFunction function, void* func_arg);
- void init_thread(TaskStruct* pthread, char* name, int prio);
- TaskStruct* thread_start(char* name, int prio, TaskFunction function, void* func_arg);
- TaskStruct* running_thread(void);
- void schedule(void);
- void thread_init(void);
- void thread_block(TaskStatus stat);
- void thread_unblock(TaskStruct* pthread);
- void thread_yield(void);
- pid_t fork_pid(void);
- void sys_ps(void);
- void thread_exit(TaskStruct* thread_over, bool need_schedule);
- TaskStruct* pid2thread(int32_t pid);
- void release_pid(pid_t pid);
+
+    uint32_t *pgdir; // Virtual address of process page directory
+    VirtualMemoryHandle userprog_vaddr; // User process virtual memory space
+    MemoryBlockDescriptor
+        u_block_desc[DESC_CNT]; // User process memory block descriptors
+    int32_t
+        fd_table[MAX_FILES_OPEN_PER_PROC]; // File descriptors of opened files
+    uint32_t cwd_inode_nr; // Inode number of the current working directory
+    pid_t parent_pid;      // Parent process ID
+    int8_t exit_status;    // Exit status set by the process when terminating
+    uint32_t stack_magic;  // Stack boundary marker for overflow detection
+} TaskStruct;
+
+/* External lists for thread management */
+extern list thread_ready_list; // List of ready threads
+extern list thread_all_list;   // List of all threads
+
+/**
+ * @brief Create a new thread.
+ *
+ * Initializes the stack and sets up execution context for a new thread.
+ *
+ * @param pthread Pointer to the thread structure.
+ * @param function Function to be executed by the thread.
+ * @param func_arg Argument to be passed to the function.
+ */
+void thread_create(TaskStruct *pthread, TaskFunction function, void *func_arg);
+
+/**
+ * @brief Initialize a thread structure.
+ *
+ * Prepares a thread structure for execution.
+ *
+ * @param pthread Pointer to the thread structure.
+ * @param name Name of the thread.
+ * @param prio Priority of the thread.
+ */
+void init_thread(TaskStruct *pthread, char *name, int prio);
+
+/**
+ * @brief Start a new thread.
+ *
+ * Allocates memory, initializes, and starts a new thread.
+ *
+ * @param name Name of the thread.
+ * @param prio Priority of the thread.
+ * @param function Function to be executed.
+ * @param func_arg Argument to be passed to the function.
+ * @return Pointer to the created TaskStruct.
+ */
+TaskStruct *thread_start(char *name, int prio, TaskFunction function,
+                         void *func_arg);
+
+/**
+ * @brief Get the currently running thread.
+ *
+ * Returns a pointer to the thread currently executing.
+ *
+ * @return Pointer to the currently running TaskStruct.
+ */
+TaskStruct *running_thread(void);
+
+/**
+ * @brief Schedule the next thread.
+ *
+ * Selects the next ready thread to execute.
+ */
+void schedule(void);
+
+/**
+ * @brief Initialize threading system.
+ *
+ * Sets up necessary structures and starts the first thread.
+ */
+void thread_init(void);
+
+/**
+ * @brief Block the current thread.
+ *
+ * Puts the current thread in a blocked state.
+ *
+ * @param stat New state of the thread (must be a blocking state).
+ */
+void thread_block(TaskStatus stat);
+
+/**
+ * @brief Unblock a thread.
+ *
+ * Moves a blocked thread to the ready state.
+ *
+ * @param pthread Pointer to the thread to be unblocked.
+ */
+void thread_unblock(TaskStruct *pthread);
+
+/**
+ * @brief Yield CPU execution.
+ *
+ * Temporarily stops execution of the current thread and schedules another.
+ */
+void thread_yield(void);
+
+/**
+ * @brief Generate a new process ID.
+ *
+ * Allocates and returns a unique process ID.
+ *
+ * @return New process ID.
+ */
+pid_t fork_pid(void);
+
+/**
+ * @brief Display process and thread information.
+ *
+ * Prints the status of all threads and processes.
+ */
+void sys_ps(void);
+
+/**
+ * @brief Terminate a thread.
+ *
+ * Ends a thread's execution and optionally schedules a new one.
+ *
+ * @param thread_over Pointer to the thread to be terminated.
+ * @param need_schedule Whether to invoke the scheduler immediately.
+ */
+void thread_exit(TaskStruct *thread_over, bool need_schedule);
+
+/**
+ * @brief Convert process ID to thread structure.
+ *
+ * Retrieves the TaskStruct corresponding to a given process ID.
+ *
+ * @param pid Process ID to look up.
+ * @return Pointer to the TaskStruct, or NULL if not found.
+ */
+TaskStruct *pid2thread(int32_t pid);
+
+/**
+ * @brief Release a process ID.
+ *
+ * Frees a previously allocated process ID.
+ *
+ * @param pid Process ID to be released.
+ */
+void release_pid(pid_t pid);
 
 #endif

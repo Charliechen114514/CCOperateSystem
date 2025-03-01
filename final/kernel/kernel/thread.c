@@ -28,8 +28,8 @@ struct pid_pool {
     CCLocker pid_lock;  // Lock for pid allocation
 } pid_pool;
 
-TaskStruct *main_thread;      // Main thread PCB (Process Control Block)
-TaskStruct *idle_thread;      // Idle thread
+static TaskStruct *main_thread;      // Main thread PCB (Process Control Block)
+static TaskStruct *idle_thread;      // Idle thread
 list thread_ready_list;       // Ready thread list
 list thread_all_list;         // All threads list
 static list_elem *thread_tag; // Thread node in the list
@@ -152,12 +152,6 @@ void init_thread(TaskStruct *pthread, char *name, int prio) {
     pthread->stack_magic =
         TASK_MAGIC; // Custom magic number for stack validation
 }
-
-#include "include/kernel/interrupt.h"
-#include "include/kernel/lock.h"
-#include "include/library/kernel_assert.h"
-#include "include/library/list.h"
-#include "include/library/types.h"
 
 /* Create a new thread with priority prio, name name, and function
  * function(func_arg) */
@@ -295,12 +289,6 @@ static void pad_print(char *buf, int32_t buf_len, void *ptr, char format) {
     }
     sys_write(stdout_no, buf, buf_len - 1); // Output the formatted string
 }
-
-#include "include/kernel/interrupt.h"
-#include "include/kernel/lock.h"
-#include "include/library/kernel_assert.h"
-#include "include/library/list.h"
-#include "include/library/types.h"
 
 /* Callback function used in list_traversal for processing thread queue */
 static bool elem2thread_info(list_elem *pelem, int arg) {
