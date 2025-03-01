@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "thread.h": "c",
+        "memory.h": "c",
+        "memory_tools.h": "c",
+        "memory_settings.h": "c",
+        "types.h": "c",
+        "console_tty.h": "c",
+        "process.h": "c",
+        "math_tools.h": "c",
+        "interrupt.h": "c",
+        "kernel_assert.h": "c",
+        "thread_settings.h": "c",
+        "list.h": "c"
+    }
+}

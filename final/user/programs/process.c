@@ -131,7 +131,7 @@ void process_execute(void *filename, char *name) {
     /* Allocate memory for the process control block (PCB) in the kernel memory
      * pool */
     TaskStruct *thread = get_kernel_pages(1);
-    init_thread(thread, name, default_prio); // Initialize the thread's PCB
+    init_thread(thread, name, DEFAULT_PRIO); // Initialize the thread's PCB
     create_user_vaddr_bitmap(
         thread); // Create a virtual address bitmap for the user process
     thread_create(thread, start_process,

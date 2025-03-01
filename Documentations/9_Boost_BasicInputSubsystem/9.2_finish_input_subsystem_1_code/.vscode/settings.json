@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "keyboard_mappings.h": "c",
+        "keyboard_ascii.h": "c"
+    }
+}
