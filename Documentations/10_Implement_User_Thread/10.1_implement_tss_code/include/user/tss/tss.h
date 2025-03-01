@@ -2,7 +2,7 @@
 #define __USERPROG_TSS_H
 #include "include/thread/thread.h"
 
-//---------------  TSS描述符属性  ------------
+//---------------  TSS Descripters  --------------------
 #define TSS_DESC_D  (0) 
 
 #define TSS_ATTR_HIGH ((DESC_G_4K << 7) + (TSS_DESC_D << 6) + (DESC_L << 5) + (DESC_AVL << 4) + 0x0)

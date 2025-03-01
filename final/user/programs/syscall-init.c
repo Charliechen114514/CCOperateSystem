@@ -12,9 +12,9 @@
 #include "include/user/program/pipe.h"
 #include "include/user/program/wait_exit.h"
 
-#define syscall_nr 32 // Number of system calls
+#define SYSCALL_SUM_NR (32) // Number of system calls
 typedef void *syscall;
-syscall syscall_table[syscall_nr]; // System call table to hold the addresses of
+syscall syscall_table[SYSCALL_SUM_NR]; // System call table to hold the addresses of
                                    // system call functions
 
 /* Return the pid of the current task */

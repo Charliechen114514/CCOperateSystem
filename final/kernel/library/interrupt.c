@@ -97,14 +97,13 @@ static void make_idt_desc(struct gate_desc *p_gdesc, uint8_t attr,
 /* Initialize the Interrupt Descriptor Table (IDT) */
 static void idt_desc_init(void) {
     verbose_write("   initing idts...\n");
-    int i, lastindex = IDT_DESC_CNT - 1;
-    for (i = 0; i < IDT_DESC_CNT; i++) {
+    for (int i = 0; i < IDT_DESC_CNT; i++) {
         make_idt_desc(
             &idt[i], IDT_DESC_ATTR_DPL0,
             intr_entry_table[i]); // Set up IDT for kernel-level interrupts
     }
     /* Special handling for system calls, which have a DPL of 3 (user-level) */
-    make_idt_desc(&idt[lastindex], IDT_DESC_ATTR_DPL3,
+    make_idt_desc(&idt[IDT_DESC_CNT - 1], IDT_DESC_ATTR_DPL3,
                   syscall_handler); // Set up the syscall interrupt handler
     verbose_write("   idt_desc_init done\n");
 }

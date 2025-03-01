@@ -60,4 +60,12 @@
 
 #define KERNEL_PAGE_MAPPINGS    (0x100000)
 #define USER_VADDR_START        (0x8048000)
+
+// pagetables 
+#define KERNEL_PGTB_INDEX       (0x300)
+#define PDE_BYTES_LEN           (4)
+#define PTE_BYTES_LEN           (4)
+#define PTE_ENTRY_NR            (1024)
+#define PDE_ENTRY_NR            (1024)
+
 #endif

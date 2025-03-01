@@ -12,6 +12,7 @@
 
 extern void intr_exit(void);
 
+
 /* Build the initial context for a user process */
 void start_process(void *filename_) {
     void *function = filename_; // The entry point of the user process
@@ -94,8 +95,8 @@ uint32_t *create_page_dir(void) {
      * kernel space *************************************/
     /* Copy the kernel page directory entries starting at 0x300 (768th entry in
      * the page directory) */
-    k_memcpy((uint32_t *)((uint32_t)page_dir_vaddr + 0x300 * 4),
-           (uint32_t *)(0xfffff000 + 0x300 * 4), 1024);
+    k_memcpy((uint32_t *)((uint32_t)page_dir_vaddr + KERNEL_PGTB_INDEX * PDE_BYTES_LEN),
+           (uint32_t *)(PG_FETCH_OFFSET + KERNEL_PGTB_INDEX * PDE_BYTES_LEN), PDE_ENTRY_NR);
     /*****************************************************************************/
 
     /************************** 2. Update the page directory address
@@ -103,7 +104,7 @@ uint32_t *create_page_dir(void) {
     uint32_t new_page_dir_phy_addr = addr_v2p((uint32_t)page_dir_vaddr);
     /* The page directory address is stored in the last entry of the page table.
        Update it with the new page directory's physical address */
-    page_dir_vaddr[1023] = new_page_dir_phy_addr | PG_US_U | PG_RW_W | PG_P_1;
+    page_dir_vaddr[PDE_ENTRY_NR - 1] = new_page_dir_phy_addr | PG_US_U | PG_RW_W | PG_P_1;
     /*****************************************************************************/
 
     return page_dir_vaddr; // Return the virtual address of the newly created

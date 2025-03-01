@@ -3,52 +3,63 @@
 #include "include/library/kernel_assert.h"
 #include "include/thread/thread.h"
 #include "include/user/process/process.h"
+#include "include/user/syscall/syscall.h"
+#include "include/user/syscall/syscall_init.h"
 void thread_a(void *args);
 void thread_b(void *args);
 void u_prog_a(void);
 void u_prog_b(void);
-int test_var_a = 0, test_var_b = 0; 
+int prog_a_pid = 0, prog_b_pid = 0; 
 
 int main(void)
 {
     init_all();
-    thread_start("k_thread_a", 31, thread_a, "In thread A:");
-    thread_start("k_thread_b", 16, thread_b, "In thread B:");
     process_execute(u_prog_a, "user_prog_a");
     process_execute(u_prog_b, "user_prog_b");
     interrupt_enabled();
+    console_ccos_puts("main_pid: 0x");
+    console__ccos_display_int(sys_getpid());
+    console__ccos_putchar('\n');
+    thread_start("k_thread_a", 31, thread_a, "In thread A:");
+    thread_start("k_thread_b", 31, thread_b, "In thread B:");
+    
     while (1)
     {
     }
 }
 
-void thread_a(void *arg[[maybe_unused]])
+void thread_a(void *arg)
 {
-    while (1)
-    {
-        console_ccos_puts("v_a:0x");
-        console__ccos_display_int(test_var_a);
-    }
+    char* para = arg;
+    (void)para;
+    console_ccos_puts("thread a pid: 0x");
+    console__ccos_display_int(sys_getpid());
+    console__ccos_putchar('\n');
+    console_ccos_puts("prog_a_pid:0x");
+    console__ccos_display_int(prog_a_pid);
+    console__ccos_putchar('\n');
+    while (1);
 }
-void thread_b(void *arg[[maybe_unused]])
+void thread_b(void *arg)
 {
-    while (1)
-    {
-        console_ccos_puts(" v_b:0x");
-        console__ccos_display_int(test_var_b);
-    }
+    char* para = arg;
+    (void)para;
+    console_ccos_puts("thread b pid: 0x");
+    console__ccos_display_int(sys_getpid());
+    console__ccos_putchar('\n');
+    console_ccos_puts("prog_b_pid:0x");
+    console__ccos_display_int(prog_b_pid);
+    console__ccos_putchar('\n');
+    while (1);
 }
 
 void u_prog_a(void)
 {
-    while (1)
-    {
-        test_var_a++;
-    }
+    prog_a_pid = getpid(); 
+    while (1);
 }
 
 void u_prog_b(void) { 
-    while(1) { 
-        test_var_b++; 
-    } 
+    prog_b_pid = getpid();
+    while(1);
 } 

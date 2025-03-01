@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "memory_settings.h": "c",
+        "math_tools.h": "c"
+    }
+}

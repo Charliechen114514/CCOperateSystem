@@ -59,7 +59,8 @@ KERNEL_MAIN_OBJ = 	${OBJ_DIR}/main.o ${OBJ_DIR}/init.o $(OBJ_DIR)/ccos_print.o \
 					${OBJ_DIR}/bitmap.o  ${OBJ_DIR}/memory_tools.o ${OBJ_DIR}/memory.o \
 					${OBJ_DIR}/list.o ${OBJ_DIR}/thread.o $(OBJ_DIR)/switch_thread.o \
 					${OBJ_DIR}/lock.o ${OBJ_DIR}/console_tty.o ${OBJ_DIR}/keyboard.o \
-					${OBJ_DIR}/ioqueue.o ${OBJ_DIR}/tss.o ${OBJ_DIR}/process.o
+					${OBJ_DIR}/ioqueue.o ${OBJ_DIR}/tss.o ${OBJ_DIR}/process.o \
+					${OBJ_DIR}/syscall.o ${OBJ_DIR}/syscall_init.o
 
 ${BOOT_IMG}: \
 	${OBJ_DIR}/${MBR}.bin ${OBJ_DIR}/${LOADER}.bin $(OBJ_DIR)/${KERNEL}.bin
@@ -100,7 +101,8 @@ ${KERNEL_MAIN_OBJ}:
 	${GCC} ${KERMAIN_CFLAGS} -c ${KER_C_DIR}/io/ioqueue.c -o ${OBJ_DIR}/ioqueue.o
 	${GCC} ${KERMAIN_CFLAGS} -c ${USER_C_DIR}/tss/tss.c -o ${OBJ_DIR}/tss.o
 	${GCC} ${KERMAIN_CFLAGS} -c ${USER_C_DIR}/process/process.c -o ${OBJ_DIR}/process.o
-
+	${GCC} ${KERMAIN_CFLAGS} -c ${USER_C_DIR}/syscall/syscall.c -o ${OBJ_DIR}/syscall.o
+	${GCC} ${KERMAIN_CFLAGS} -c ${USER_C_DIR}/syscall/syscall_init.c -o ${OBJ_DIR}/syscall_init.o
 
 # Phony's are the scrpits usage
 .PHONY: clean upload disasm all rebuild test

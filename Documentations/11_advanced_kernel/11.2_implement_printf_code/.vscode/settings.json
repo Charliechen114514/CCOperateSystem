@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstdio": "c",
+        "interrupt.h": "c",
+        "stdio.h": "c",
+        "types.h": "c"
+    }
+}
