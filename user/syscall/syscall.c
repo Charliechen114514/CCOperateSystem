@@ -42,34 +42,40 @@
     })
 
 /* Returns the current task's PID */
-uint32_t getpid() {
+uint32_t getpid()
+{
     return _syscall0(SYS_GETPID);
 }
 
 /* Writes 'count' characters from 'buf' to file descriptor 'fd' */
-uint32_t write(int32_t fd, const void *buf, uint32_t count) {
+uint32_t write(int32_t fd, const void *buf, uint32_t count)
+{
     return _syscall3(SYS_WRITE, fd, buf, count);
 }
 
 /* Allocates 'size' bytes of memory and returns the result */
-void *malloc(uint32_t size) {
+void *malloc(uint32_t size)
+{
     return (void *)_syscall1(SYS_MALLOC, size);
 }
 
 /* Frees the memory pointed to by 'ptr' */
-void free(void *ptr) {
+void free(void *ptr)
+{
     _syscall1(SYS_FREE, ptr);
 }
 
 /* Creates a child process and returns the child process's PID */
-pid_t fork(void) {
+pid_t fork(void)
+{
     return _syscall0(SYS_FORK);
 }
 
-/* Reads 'count' bytes from file descriptor 'fd' into 'buf' */
-int32_t read(int32_t fd, void *buf, uint32_t count) {
+int32_t read(int32_t fd, void *buf, uint32_t count)
+{
     return _syscall3(SYS_READ, fd, buf, count);
 }
+
 
 /* Outputs a character */
 void putchar(char char_asci) {
@@ -137,7 +143,7 @@ void rewinddir(Dir *dir) {
 }
 
 /* Gets the attributes of 'path' and stores them in 'buf' */
-int32_t stat(const char *path, struct stat *buf) {
+int32_t stat(const char *path, Stat *buf) {
     return _syscall2(SYS_STAT, path, buf);
 }
 
@@ -150,7 +156,6 @@ int32_t chdir(const char *path) {
 void ps(void) {
     _syscall0(SYS_PS);
 }
-
 /* Executes the program at 'pathname' */
 int32_t execv(const char *pathname, char **argv) {
     return _syscall2(SYS_EXECV, pathname, argv);

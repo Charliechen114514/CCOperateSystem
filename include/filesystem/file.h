@@ -4,12 +4,12 @@
 #include "include/library/types.h"
 
 typedef struct __dir Dir;
+typedef struct __inode Inode;
 
-/* 文件结构 */
 typedef struct {
-    uint32_t fd_pos; // 记录当前文件操作的偏移地址,以0为起始,最大为文件大小-1
+    uint32_t fd_pos; 
     uint32_t fd_flag;
-    struct inode *fd_inode;
+    Inode *fd_inode;
 }File;
 
 /* 标准输入输出描述符 */
@@ -38,4 +38,5 @@ int32_t file_open(uint32_t inode_no, uint8_t flag);
 int32_t file_close(File *file);
 int32_t file_write(File *file, const void *buf, uint32_t count);
 int32_t file_read(File *file, void *buf, uint32_t count);
+
 #endif

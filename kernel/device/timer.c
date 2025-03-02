@@ -4,7 +4,7 @@
 #include "include/library/ccos_print.h"
 #include "include/library/kernel_assert.h"
 #include "include/utils/fast_utils.h"
-#include "include/kernel/thread.h"
+#include "include/thread/thread.h"
 #include "include/device/timer_settings.h"
 
 uint32_t ticks; // Total number of ticks since the kernel interrupt started
@@ -28,7 +28,7 @@ static void frequency_set(uint8_t counter_port, uint8_t counter_no, uint8_t rwl,
 static void intr_timer_handler(void) {
     TaskStruct *cur_thread = running_thread();
 
-    ASSERT(cur_thread->stack_magic == TASK_MAGIC); // Check for stack overflow
+    KERNEL_ASSERT(cur_thread->stack_magic == TASK_MAGIC); // Check for stack overflow
 
     cur_thread->elapsed_ticks++; // Record the CPU time consumed by this thread
     ticks++; // Total ticks since the first kernel timer interrupt, including both kernel and user mode
@@ -52,16 +52,16 @@ static void ticks_to_sleep(uint32_t sleep_ticks) {
 // Sleep in milliseconds. 1 second = 1000 milliseconds
 void mtime_sleep(uint32_t m_seconds) {
     uint32_t sleep_ticks = ROUNDUP(m_seconds, MILISEC_PER_INT);
-    ASSERT(sleep_ticks > 0);
+    KERNEL_ASSERT(sleep_ticks > 0);
     ticks_to_sleep(sleep_ticks);
 }
 
 /* Initialize PIT8253 */
 void init_system_timer() {
-    verbose_write("open up the 8253 as timer ...\n");
+    verbose_ccputs("open up the 8253 as timer ...\n");
     /* Set the timing cycle of 8253, which determines the interrupt interval */
     frequency_set(CONTRER0_PORT, COUNTER0_NO, READ_WRITE_LATCH, COUNTER_MODE,
                   COUNTER0_VALUE);
     register_intr_handler(0x20, intr_timer_handler);
-    verbose_write("finished!\n");
+    verbose_ccputs("finished!\n");
 }

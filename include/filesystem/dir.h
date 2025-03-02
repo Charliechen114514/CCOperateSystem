@@ -1,7 +1,7 @@
 #ifndef __FS_DIR_H
 #define __FS_DIR_H
 #include "include/device/ide.h"
-#include "include/filesystem/fs.h"
+#include "include/filesystem/filesystem.h"
 #include "include/filesystem/inode.h"
 #include "include/library/types.h"
 
@@ -10,7 +10,7 @@
 
 /* Directory structure */
 typedef struct __dir{
-    struct inode *inode; // Pointer to the inode of the directory
+    Inode *inode; // Pointer to the inode of the directory
     uint32_t dir_pos;    // Offset within the directory
     uint8_t dir_buf[DIRENT_LEN_BUFFER_SZ]; // Buffer to hold directory data
 }Dir;

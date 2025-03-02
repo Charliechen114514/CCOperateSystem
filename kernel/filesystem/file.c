@@ -1,12 +1,12 @@
 #include "include/filesystem/file.h"
-#include "include/FormatIO/stdio-kernel.h"
+#include "include/io/stdio-kernel.h"
 #include "include/filesystem/dir.h"
-#include "include/filesystem/fs.h"
+#include "include/filesystem/filesystem.h"
 #include "include/filesystem/inode.h"
 #include "include/filesystem/super_block.h"
 #include "include/io/ioqueue.h"
 #include "include/kernel/interrupt.h"
-#include "include/kernel/thread.h"
+#include "include/thread/thread.h"
 #include "include/library/kernel_assert.h"
 #include "include/library/string.h"
 #include "include/memory/memory.h"
@@ -19,17 +19,21 @@ File file_table[MAX_FILE_OPEN];
 /* Retrieves an available slot in the global file table (file_table).
  * Returns the index of the slot if successful, or -1 if all slots are in use.
  */
-int32_t get_free_slot_in_global(void) {
+int32_t get_free_slot_in_global(void)
+{
     uint32_t fd_idx = 3; // Start from index 3, skipping stdin, stdout, stderr.
-    while (fd_idx < MAX_FILE_OPEN) {
+    while (fd_idx < MAX_FILE_OPEN)
+    {
         if (file_table[fd_idx].fd_inode ==
-            NULL) { // Check if the inode is NULL.
+            NULL)
+        { // Check if the inode is NULL.
             break;
         }
         fd_idx++;
     }
-    if (fd_idx == MAX_FILE_OPEN) { // All slots are in use.
-        printk("exceed max open files\n");
+    if (fd_idx == MAX_FILE_OPEN)
+    { // All slots are in use.
+        ccos_printk("exceed max open files\n");
         return -1;
     }
     return fd_idx;
@@ -38,30 +42,36 @@ int32_t get_free_slot_in_global(void) {
 /* Installs the global file descriptor index into the process or thread's local
  * file descriptor table (fd_table). Returns the local file descriptor index if
  * successful, or -1 if all local file descriptor slots are in use. */
-int32_t pcb_fd_install(int32_t global_fd_idx) {
+int32_t pcb_fd_install(int32_t global_fd_idx)
+{
     TaskStruct *cur = running_thread(); // Get the current running thread.
     uint8_t local_fd_idx =
         3; // Start from index 3, skipping stdin, stdout, stderr.
-    while (local_fd_idx < MAX_FILES_OPEN_PER_PROC) {
-        if (cur->fd_table[local_fd_idx] == -1) { // -1 means the slot is free.
+    while (local_fd_idx < MAX_FILES_OPEN_PER_PROC)
+    {
+        if (cur->fd_table[local_fd_idx] == -1)
+        { // -1 means the slot is free.
             cur->fd_table[local_fd_idx] =
                 global_fd_idx; // Install the global fd index.
             break;
         }
         local_fd_idx++;
     }
-    if (local_fd_idx == MAX_FILES_OPEN_PER_PROC) { // All slots are in use.
-        printk("exceed max open files_per_proc\n");
+    if (local_fd_idx == MAX_FILES_OPEN_PER_PROC)
+    { // All slots are in use.
+        ccos_printk("exceed max open files_per_proc\n");
         return -1;
     }
     return local_fd_idx;
 }
 
 /* Allocates an inode and returns its inode number. */
-int32_t inode_bitmap_alloc(DiskPartition *part) {
+int32_t inode_bitmap_alloc(DiskPartition *part)
+{
     int32_t bit_idx =
         bitmap_scan(&part->inode_bitmap, 1); // Find an available bit.
-    if (bit_idx == -1) {
+    if (bit_idx == -1)
+    {
         return -1;
     }
     bitmap_set(&part->inode_bitmap, bit_idx, 1); // Set the bit as used.
@@ -69,10 +79,12 @@ int32_t inode_bitmap_alloc(DiskPartition *part) {
 }
 
 /* Allocates a block and returns its block address. */
-int32_t block_bitmap_alloc(DiskPartition *part) {
+int32_t block_bitmap_alloc(DiskPartition *part)
+{
     int32_t bit_idx =
         bitmap_scan(&part->block_bitmap, 1); // Find an available bit.
-    if (bit_idx == -1) {
+    if (bit_idx == -1)
+    {
         return -1;
     }
     bitmap_set(&part->block_bitmap, bit_idx, 1); // Set the bit as used.
@@ -84,7 +96,8 @@ int32_t block_bitmap_alloc(DiskPartition *part) {
 /* Synchronizes the bitmap data of the given type (inode_bitmap or block_bitmap)
  * to the disk. The synchronization is performed by writing the relevant section
  * of the bitmap to the disk. */
-void bitmap_sync(DiskPartition *part, uint32_t bit_idx, uint8_t btmp_type) {
+void bitmap_sync(DiskPartition *part, uint32_t bit_idx, uint8_t btmp_type)
+{
     uint32_t off_sec = bit_idx / 4096; // Offset of the sector in the bitmap.
     uint32_t off_size =
         off_sec * BLOCK_SIZE; // Offset in bytes within the bitmap.
@@ -94,7 +107,8 @@ void bitmap_sync(DiskPartition *part, uint32_t bit_idx, uint8_t btmp_type) {
 
     /* Synchronize inode_bitmap or block_bitmap based on the btmp_type argument.
      */
-    switch (btmp_type) {
+    switch (btmp_type)
+    {
     case INODE_BITMAP:
         sec_lba = part->sb->inode_bitmap_lba + off_sec;
         bitmap_off = part->inode_bitmap.bits + off_size;
@@ -112,10 +126,12 @@ void bitmap_sync(DiskPartition *part, uint32_t bit_idx, uint8_t btmp_type) {
 /* Creates a new file in the given parent directory.
  * Returns the file descriptor if successful, or -1 if an error occurs during
  * creation. */
-int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag) {
+int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag)
+{
     void *io_buf = sys_malloc(1024); // Allocate memory for a temporary buffer.
-    if (io_buf == NULL) {
-        printk("in file_create: sys_malloc for io_buf failed\n");
+    if (io_buf == NULL)
+    {
+        ccos_printk("in file_create: sys_malloc for io_buf failed\n");
         return -1;
     }
 
@@ -124,16 +140,18 @@ int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag) {
 
     /* Allocate an inode for the new file. */
     int32_t inode_no = inode_bitmap_alloc(cur_part);
-    if (inode_no == -1) {
-        printk("in file_create: allocate inode failed\n");
+    if (inode_no == -1)
+    {
+        ccos_printk("in file_create: allocate inode failed\n");
         return -1;
     }
 
     /* Allocate memory for the inode and initialize it. */
-    struct inode *new_file_inode =
-        (struct inode *)sys_malloc(sizeof(struct inode));
-    if (new_file_inode == NULL) {
-        printk("file_create: sys_malloc for inode failed\n");
+    Inode *new_file_inode =
+        (Inode *)sys_malloc(sizeof(Inode));
+    if (new_file_inode == NULL)
+    {
+        ccos_printk("file_create: sys_malloc for inode failed\n");
         rollback_step = 1;
         goto rollback;
     }
@@ -141,8 +159,9 @@ int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag) {
 
     /* Get an available slot in the global file table. */
     int fd_idx = get_free_slot_in_global();
-    if (fd_idx == -1) {
-        printk("exceed max open files\n");
+    if (fd_idx == -1)
+    {
+        ccos_printk("exceed max open files\n");
         rollback_step = 2;
         goto rollback;
     }
@@ -155,22 +174,23 @@ int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag) {
 
     /* Create a directory entry for the new file. */
     DirEntry new_dir_entry;
-    memset(&new_dir_entry, 0, sizeof(DirEntry));
+    k_memset(&new_dir_entry, 0, sizeof(DirEntry));
     create_dir_entry(filename, inode_no, FT_REGULAR,
                      &new_dir_entry); // Create the directory entry.
 
     /* Synchronize the directory entry to the disk. */
-    if (!sync_dir_entry(parent_dir, &new_dir_entry, io_buf)) {
-        printk("sync dir_entry to disk failed\n");
+    if (!sync_dir_entry(parent_dir, &new_dir_entry, io_buf))
+    {
+        ccos_printk("sync dir_entry to disk failed\n");
         rollback_step = 3;
         goto rollback;
     }
 
-    memset(io_buf, 0, 1024);
+    k_memset(io_buf, 0, 1024);
     /* Synchronize the parent directory's inode to the disk. */
     inode_sync(cur_part, parent_dir->inode, io_buf);
 
-    memset(io_buf, 0, 1024);
+    k_memset(io_buf, 0, 1024);
     /* Synchronize the new file's inode to the disk. */
     inode_sync(cur_part, new_file_inode, io_buf);
 
@@ -187,10 +207,11 @@ int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag) {
 
 rollback:
     /* If any step fails, roll back the allocated resources. */
-    switch (rollback_step) {
+    switch (rollback_step)
+    {
     case 3:
         /* Clear the file table entry if synchronization fails. */
-        memset(&file_table[fd_idx], 0, sizeof(File));
+        k_memset(&file_table[fd_idx], 0, sizeof(File));
         goto FREE_SRC;
         break;
     case 2:
@@ -214,7 +235,7 @@ int32_t file_open(uint32_t inode_no, uint8_t flag) {
     // Get an available slot in the global file table.
     int fd_idx = get_free_slot_in_global();
     if (fd_idx == -1) { // Check if no free slot is available.
-        printk("exceed max open files\n");
+        ccos_printk("exceed max open files\n");
         return -1;
     }
 
@@ -231,18 +252,17 @@ int32_t file_open(uint32_t inode_no, uint8_t flag) {
     if (flag == O_WRONLY || flag == O_RDWR) { // Writing to the file.
         // Only check for write access conflicts if the file is being written.
         Interrupt_Status old_status =
-            disable_intr(); // Disable interrupts to enter a critical section.
+            set_intr_status(INTR_OFF); // Disable interrupts to enter a critical section.
 
         if (!(*write_deny)) {   // If no other process is currently writing to
                                 // this file.
             *write_deny = true; // Mark the file as being written to prevent
                                 // other processes from writing.
-            set_intr_state(
-                old_status); // Restore interrupts after the critical section.
+            set_intr_status(old_status); // Restore interrupts after the critical section.
         } else { // If another process is already writing to the file, return an
                  // error.
-            set_intr_state(old_status);
-            printk("file can't be written to now, try again later\n");
+            set_intr_status(old_status);
+            ccos_printk("file can't be written to now, try again later\n");
             return -1;
         }
     }
@@ -272,6 +292,7 @@ int32_t file_close(File *file) {
     return 0;
 }
 
+
 /* Writes 'count' bytes from 'buf' to the file.
  * Returns the number of bytes written on success,
  * or -1 if an error occurs. */
@@ -279,21 +300,21 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
     // Check if the file size after writing exceeds the maximum allowed size
     // (140 blocks, 71680 bytes).
     if ((file->fd_inode->i_size + count) > (BLOCK_SIZE * 140)) {
-        printk("exceed max file_size 71680 bytes, write file failed\n");
+        ccos_printk("exceed max file_size 71680 bytes, write file failed\n");
         return -1;
     }
 
     // Allocate memory for the IO buffer and the block address array.
     uint8_t *io_buf = sys_malloc(BLOCK_SIZE);
     if (io_buf == NULL) {
-        printk("file_write: sys_malloc for io_buf failed\n");
+        ccos_printk("file_write: sys_malloc for io_buf failed\n");
         return -1;
     }
 
     uint32_t *all_blocks = (uint32_t *)sys_malloc(
         BLOCK_SIZE + 48); // Array to store all block addresses.
     if (all_blocks == NULL) {
-        printk("file_write: sys_malloc for all_blocks failed\n");
+        ccos_printk("file_write: sys_malloc for all_blocks failed\n");
         return -1;
     }
 
@@ -317,14 +338,14 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
     if (file->fd_inode->i_sectors[0] == 0) {
         block_lba = block_bitmap_alloc(cur_part);
         if (block_lba == -1) {
-            printk("file_write: block_bitmap_alloc failed\n");
+            ccos_printk("file_write: block_bitmap_alloc failed\n");
             return -1;
         }
         file->fd_inode->i_sectors[0] = block_lba;
 
         // Synchronize the block bitmap to disk after allocation.
         block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
-        ASSERT(block_bitmap_idx != 0);
+        KERNEL_ASSERT(block_bitmap_idx != 0);
         bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
     }
 
@@ -333,7 +354,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
     uint32_t file_has_used_blocks = file->fd_inode->i_size / BLOCK_SIZE + 1;
     uint32_t file_will_use_blocks =
         (file->fd_inode->i_size + count) / BLOCK_SIZE + 1;
-    ASSERT(file_will_use_blocks <= 140);
+    KERNEL_ASSERT(file_will_use_blocks <= 140);
 
     // Calculate the number of blocks to be added.
     uint32_t add_blocks = file_will_use_blocks - file_has_used_blocks;
@@ -347,7 +368,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
         } else {
             // If indirect blocks are already used, load the indirect block
             // addresses.
-            ASSERT(file->fd_inode->i_sectors[12] != 0);
+            KERNEL_ASSERT(file->fd_inode->i_sectors[12] != 0);
             indirect_block_table = file->fd_inode->i_sectors[12];
             ide_read(cur_part->my_disk, indirect_block_table, all_blocks + 12,
                      1);
@@ -357,7 +378,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
         if (file_will_use_blocks <= 12) {
             // Case 1: All new data fits within the first 12 blocks.
             block_idx = file_has_used_blocks - 1;
-            ASSERT(file->fd_inode->i_sectors[block_idx] != 0);
+            KERNEL_ASSERT(file->fd_inode->i_sectors[block_idx] != 0);
             all_blocks[block_idx] = file->fd_inode->i_sectors[block_idx];
 
             // Allocate new blocks and add them to 'all_blocks'.
@@ -365,11 +386,11 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
             while (block_idx < file_will_use_blocks) {
                 block_lba = block_bitmap_alloc(cur_part);
                 if (block_lba == -1) {
-                    printk("file_write: block_bitmap_alloc for situation 1 "
+                    ccos_printk("file_write: block_bitmap_alloc for situation 1 "
                            "failed\n");
                     return -1;
                 }
-                ASSERT(file->fd_inode->i_sectors[block_idx] == 0);
+                KERNEL_ASSERT(file->fd_inode->i_sectors[block_idx] == 0);
                 file->fd_inode->i_sectors[block_idx] = all_blocks[block_idx] =
                     block_lba;
                 block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
@@ -385,23 +406,23 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
             // Allocate an indirect block.
             block_lba = block_bitmap_alloc(cur_part);
             if (block_lba == -1) {
-                printk(
+                ccos_printk(
                     "file_write: block_bitmap_alloc for situation 2 failed\n");
                 return -1;
             }
-            ASSERT(file->fd_inode->i_sectors[12] == 0);
+            KERNEL_ASSERT(file->fd_inode->i_sectors[12] == 0);
             indirect_block_table = file->fd_inode->i_sectors[12] = block_lba;
 
             block_idx = file_has_used_blocks;
             while (block_idx < file_will_use_blocks) {
                 block_lba = block_bitmap_alloc(cur_part);
                 if (block_lba == -1) {
-                    printk("file_write: block_bitmap_alloc for situation 2 "
+                    ccos_printk("file_write: block_bitmap_alloc for situation 2 "
                            "failed\n");
                     return -1;
                 }
                 if (block_idx < 12) {
-                    ASSERT(file->fd_inode->i_sectors[block_idx] == 0);
+                    KERNEL_ASSERT(file->fd_inode->i_sectors[block_idx] == 0);
                     file->fd_inode->i_sectors[block_idx] =
                         all_blocks[block_idx] = block_lba;
                 } else {
@@ -415,7 +436,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
                       1);
         } else if (file_has_used_blocks > 12) {
             // Case 3: New data will occupy indirect blocks.
-            ASSERT(file->fd_inode->i_sectors[12] != 0);
+            KERNEL_ASSERT(file->fd_inode->i_sectors[12] != 0);
             indirect_block_table = file->fd_inode->i_sectors[12];
             ide_read(cur_part->my_disk, indirect_block_table, all_blocks + 12,
                      1);
@@ -424,7 +445,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
             while (block_idx < file_will_use_blocks) {
                 block_lba = block_bitmap_alloc(cur_part);
                 if (block_lba == -1) {
-                    printk("file_write: block_bitmap_alloc for situation 3 "
+                    ccos_printk("file_write: block_bitmap_alloc for situation 3 "
                            "failed\n");
                     return -1;
                 }
@@ -441,7 +462,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
     bool first_write_block = true;
     file->fd_pos = file->fd_inode->i_size - 1;
     while (bytes_written < count) {
-        memset(io_buf, 0, BLOCK_SIZE);
+        k_memset(io_buf, 0, BLOCK_SIZE);
         sec_idx = file->fd_inode->i_size / BLOCK_SIZE;
         sec_lba = all_blocks[sec_idx];
         sec_off_bytes = file->fd_inode->i_size % BLOCK_SIZE;
@@ -454,7 +475,7 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
             first_write_block = false;
         }
 
-        memcpy(io_buf + sec_off_bytes, src, chunk_size);
+        k_memcpy(io_buf + sec_off_bytes, src, chunk_size);
         ide_write(cur_part->my_disk, sec_lba, io_buf, 1);
 
         src += chunk_size;
@@ -492,13 +513,13 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
     uint8_t *io_buf =
         sys_malloc(BLOCK_SIZE); // Allocate buffer for I/O operations
     if (io_buf == NULL) {
-        printk("file_read: sys_malloc for io_buf failed\n");
+        ccos_printk("file_read: sys_malloc for io_buf failed\n");
     }
     uint32_t *all_blocks = (uint32_t *)sys_malloc(
         BLOCK_SIZE + 48); // Allocate space to store the addresses of all blocks
                           // used by the file
     if (all_blocks == NULL) {
-        printk("file_read: sys_malloc for all_blocks failed\n");
+        ccos_printk("file_read: sys_malloc for all_blocks failed\n");
         return -1;
     }
 
@@ -510,7 +531,7 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
     uint32_t read_blocks = block_read_start_idx -
                            block_read_end_idx; // If the difference is 0, data
                                                // is within the same sector
-    ASSERT(block_read_start_idx < 139 && block_read_end_idx < 139);
+    KERNEL_ASSERT(block_read_start_idx < 139 && block_read_end_idx < 139);
 
     int32_t indirect_block_table; // To store the address of the indirect block
                                   // table
@@ -520,7 +541,7 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
      * addresses used by the file. */
     if (read_blocks ==
         0) { // Data is within the same sector, no need to read across sectors
-        ASSERT(block_read_end_idx == block_read_start_idx);
+        KERNEL_ASSERT(block_read_end_idx == block_read_start_idx);
         if (block_read_end_idx <
             12) { // If the data is within the first 12 direct blocks
             block_idx = block_read_end_idx;
@@ -547,7 +568,7 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
                 all_blocks[block_idx] = file->fd_inode->i_sectors[block_idx];
                 block_idx++;
             }
-            ASSERT(
+            KERNEL_ASSERT(
                 file->fd_inode->i_sectors[12] !=
                 0); // Ensure that the indirect block table has been allocated
 
@@ -558,7 +579,7 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
                          // starting from the 13th block
         } else {
             /* Third case: Data is entirely within the indirect blocks */
-            ASSERT(
+            KERNEL_ASSERT(
                 file->fd_inode->i_sectors[12] !=
                 0); // Ensure that the indirect block table has been allocated
             indirect_block_table =
@@ -585,10 +606,10 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
                          ? size_left
                          : sec_left_bytes; // Determine the chunk size to read
 
-        memset(io_buf, 0, BLOCK_SIZE); // Clear the I/O buffer
+        k_memset(io_buf, 0, BLOCK_SIZE); // Clear the I/O buffer
         ide_read(cur_part->my_disk, sec_lba, io_buf,
                  1); // Read the block from disk
-        memcpy(buf_dst, io_buf + sec_off_bytes,
+        k_memcpy(buf_dst, io_buf + sec_off_bytes,
                chunk_size); // Copy the relevant data into the buffer
 
         buf_dst += chunk_size;      // Update the destination pointer

@@ -2,7 +2,7 @@
 #include "include/device/console_tty.h"
 #include "include/kernel/interrupt.h"
 #include "include/kernel/kernel_table_property.h"
-#include "include/kernel/thread.h"
+#include "include/thread/thread.h"
 #include "include/library/kernel_assert.h"
 #include "include/library/list.h"
 #include "include/library/string.h"
@@ -33,7 +33,7 @@ void start_process(void *filename_) {
         (EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1); // Set flags for user mode
     proc_stack->esp =
         (void *)((uint32_t)get_a_page(PF_USER, USER_STACK3_VADDR) +
-                 PGSIZE);             // Set up user stack
+                 PG_SIZE);             // Set up user stack
     proc_stack->ss = SELECTOR_U_DATA; // Set the stack segment selector
     asm volatile("movl %0, %%esp; \
          jmp intr_exit"
@@ -55,9 +55,9 @@ void page_dir_activate(TaskStruct *p_thread) {
      * space) */
     uint32_t pagedir_phy_addr =
         0x100000; // Default for kernel thread page directory
-    if (p_thread->pgdir !=
+    if (p_thread->pg_dir !=
         NULL) { // If the thread has its own page directory (user process)
-        pagedir_phy_addr = addr_v2p((uint32_t)p_thread->pgdir);
+        pagedir_phy_addr = addr_v2p((uint32_t)p_thread->pg_dir);
     }
 
     /* Update the CR3 register to activate the new page table */
@@ -67,14 +67,14 @@ void page_dir_activate(TaskStruct *p_thread) {
 /* Activate the page table for a process or thread and update the TSS's esp0 for
  * privilege level 0 stack */
 void process_activate(TaskStruct *p_thread) {
-    ASSERT(p_thread != NULL);
+    KERNEL_ASSERT(p_thread);
     /* Activate the page table for the process or thread */
     page_dir_activate(p_thread);
 
     /* If it's a kernel thread, its privilege level is already 0,
        so the processor doesn't need to fetch the stack address from the TSS
        during interrupts. */
-    if (p_thread->pgdir) {
+    if (p_thread->pg_dir) {
         /* Update esp0 in the TSS for the process's privilege level 0 stack
          * during interrupts */
         update_tss_esp(p_thread);
@@ -98,7 +98,7 @@ uint32_t *create_page_dir(void) {
      * kernel space *************************************/
     /* Copy the kernel page directory entries starting at 0x300 (768th entry in
      * the page directory) */
-    memcpy((uint32_t *)((uint32_t)page_dir_vaddr + 0x300 * 4),
+    k_memcpy((uint32_t *)((uint32_t)page_dir_vaddr + 0x300 * 4),
            (uint32_t *)(0xfffff000 + 0x300 * 4), 1024);
     /*****************************************************************************/
 
@@ -118,11 +118,11 @@ uint32_t *create_page_dir(void) {
 void create_user_vaddr_bitmap(TaskStruct *user_prog) {
     user_prog->userprog_vaddr.vaddr_start = USER_VADDR_START;
     uint32_t bitmap_pg_cnt =
-        ROUNDUP((0xc0000000 - USER_VADDR_START) / PGSIZE / 8, PGSIZE);
+        ROUNDUP((0xc0000000 - USER_VADDR_START) / PG_SIZE / 8, PG_SIZE);
     user_prog->userprog_vaddr.vaddr_bitmap.bits =
         get_kernel_pages(bitmap_pg_cnt);
     user_prog->userprog_vaddr.vaddr_bitmap.btmp_bytes_len =
-        (0xc0000000 - USER_VADDR_START) / PGSIZE / 8;
+        (0xc0000000 - USER_VADDR_START) / PG_SIZE / 8;
     bitmap_init(&user_prog->userprog_vaddr.vaddr_bitmap);
 }
 
@@ -131,22 +131,22 @@ void process_execute(void *filename, char *name) {
     /* Allocate memory for the process control block (PCB) in the kernel memory
      * pool */
     TaskStruct *thread = get_kernel_pages(1);
-    init_thread(thread, name, default_prio); // Initialize the thread's PCB
+    init_thread(thread, name, DEFAULT_PRIO); // Initialize the thread's PCB
     create_user_vaddr_bitmap(
         thread); // Create a virtual address bitmap for the user process
     thread_create(thread, start_process,
                   filename); // Create the thread to start the user process
-    thread->pgdir =
+    thread->pg_dir =
         create_page_dir(); // Create a page directory for the process
     block_desc_init(
         thread->u_block_desc); // Initialize the memory block descriptors
 
     /* Add the thread to the ready list and all thread list */
-    Interrupt_Status old_status = disable_intr();
-    ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));
+    Interrupt_Status old_status = set_intr_status(INTR_OFF);
+    KERNEL_ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));
     list_append(&thread_ready_list, &thread->general_tag);
 
-    ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
+    KERNEL_ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
     list_append(&thread_all_list, &thread->all_list_tag);
-    set_intr_state(old_status); // Restore the interrupt state
+    set_intr_status(old_status); // Restore the interrupt state
 }

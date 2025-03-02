@@ -187,12 +187,12 @@ p_mode_start:
    cmp byte [ebx + 0], PT_NULL          ; If p_type equals PT_NULL, this program header is .
    je .PTNULL
 
-; Push parameters for the memcpy function, parameters are pushed from right to left. Function prototype is similar to memcpy(dst,src,size)
-   push dword [ebx + 16]               ; The attribute at offset 16 bytes in the program header is p_filesz, push as the third parameter for memcpy: size
+; Push parameters for the k_memcpy function, parameters are pushed from right to left. Function prototype is similar to k_memcpy(dst,src,size)
+   push dword [ebx + 16]               ; The attribute at offset 16 bytes in the program header is p_filesz, push as the third parameter for k_memcpy: size
    mov eax, [ebx + 4]                  ; The attribute at offset 4 bytes in the program header is p_offset
    add eax, KERNEL_BIN_BASE_ADDR       ; Add the physical address where kernel.bin is loaded, eax is the physical address of this segment
-   push eax                            ; Push as the second parameter for memcpy: source address
-   push dword [ebx + 8]                ; Push as the first parameter for memcpy: destination address, the attribute at offset 8 bytes in the program header is p_vaddr, which is the destination address
+   push eax                            ; Push as the second parameter for k_memcpy: source address
+   push dword [ebx + 8]                ; Push as the first parameter for k_memcpy: destination address, the attribute at offset 8 bytes in the program header is p_vaddr, which is the destination address
    call mem_cpy                        ; Call mem_cpy to copy the segment
    add esp,12                          ; Clean up the three parameters pushed onto the stack
    .PTNULL:

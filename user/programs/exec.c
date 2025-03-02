@@ -1,11 +1,12 @@
 #include "include/user/program/exec.h"
-#include "include/FormatIO/stdio-kernel.h"
-#include "include/filesystem/fs.h"
-#include "include/kernel/thread.h"
+#include "include/io/stdio-kernel.h"
+#include "include/filesystem/filesystem.h"
+#include "include/thread/thread.h"
 #include "include/library/string.h"
 #include "include/library/types.h"
 #include "include/memory/memory.h"
 #include "include/memory/memory_settings.h"
+#include "include/memory/memory_tools.h"
 
 extern void intr_exit(void);
 typedef uint32_t Elf32_Word, Elf32_Addr, Elf32_Off;
@@ -58,13 +59,13 @@ static bool segment_load(int32_t fd, uint32_t offset, uint32_t filesz,
     uint32_t vaddr_first_page =
         vaddr & 0xfffff000; // First page of the virtual address
     uint32_t size_in_first_page =
-        PGSIZE - (vaddr & 0x00000fff); // Size of the segment in the first page
+        PG_SIZE - (vaddr & 0x00000fff); // Size of the segment in the first page
     uint32_t occupy_pages = 0;
 
     // If the segment doesn't fit in a single page
     if (filesz > size_in_first_page) {
         uint32_t left_size = filesz - size_in_first_page;
-        occupy_pages = ROUNDUP(left_size, PGSIZE) + 1; // +1 for the first page
+        occupy_pages = ROUNDUP(left_size, PG_SIZE) + 1; // +1 for the first page
     } else {
         occupy_pages = 1;
     }
@@ -77,12 +78,12 @@ static bool segment_load(int32_t fd, uint32_t offset, uint32_t filesz,
         uint32_t *pte = pte_ptr(vaddr_page); // Page table entry
 
         // Allocate memory if PDE or PTE doesn't exist
-        if (!(*pde & 0x00000001) || !(*pte & 0x00000001)) {
+        if (!(*pde & PG_P_1) || !(*pte & PG_P_1)) {
             if (get_a_page(PF_USER, vaddr_page) == NULL) {
                 return false;
             }
         }
-        vaddr_page += PGSIZE;
+        vaddr_page += PG_SIZE;
         page_idx++;
     }
 
@@ -98,7 +99,7 @@ static int32_t load(const char *pathname) {
     int32_t ret = -1;
     struct Elf32_Ehdr elf_header;
     struct Elf32_Phdr prog_header;
-    memset(&elf_header, 0, sizeof(struct Elf32_Ehdr));
+    k_memset(&elf_header, 0, sizeof(struct Elf32_Ehdr));
 
     int32_t fd = sys_open(pathname, O_RDONLY); // Open the program file
     if (fd == -1) {
@@ -113,7 +114,7 @@ static int32_t load(const char *pathname) {
     }
 
     // Verify the ELF header
-    if (memcmp(elf_header.e_ident, "\177ELF\1\1\1", 7) ||
+    if (k_memcmp(elf_header.e_ident, "\177ELF\1\1\1", 7) ||
         elf_header.e_type != 2 || elf_header.e_machine != 3 ||
         elf_header.e_version != 1 || elf_header.e_phnum > 1024 ||
         elf_header.e_phentsize != sizeof(struct Elf32_Phdr)) {
@@ -127,7 +128,7 @@ static int32_t load(const char *pathname) {
     // Iterate over all program headers
     uint32_t prog_idx = 0;
     while (prog_idx < elf_header.e_phnum) {
-        memset(&prog_header, 0, prog_header_size);
+        k_memset(&prog_header, 0, prog_header_size);
 
         // Seek to the program header location in the file
         sys_lseek(fd, prog_header_offset, SEEK_SET);
@@ -171,17 +172,16 @@ int32_t sys_execv(const char *path, const char *argv[]) {
         return -1;
     }
 
-    TaskStruct *cur =
-        running_thread(); // Get the current running thread (process)
-    memcpy(cur->name, path, TASK_NAME_ARRAY_SZ); // Update the process name
+    TaskStruct *cur = running_thread(); // Get the current running thread (process)
+    k_memcpy(cur->name, path, TASK_NAME_ARRAY_SZ); // Update the process name
 
     // Update the stack with the arguments
     Interrupt_Stack *intr_0_stack =
-        (Interrupt_Stack *)((uint32_t)cur + PGSIZE - sizeof(Interrupt_Stack));
+        (Interrupt_Stack *)((uint32_t)cur + PG_SIZE - sizeof(Interrupt_Stack));
     intr_0_stack->ebx = (int32_t)argv;
     intr_0_stack->ecx = argc;
     intr_0_stack->eip = (void *)entry_point;
-    intr_0_stack->esp = (void *)0xc0000000; // Set stack pointer to the highest
+    intr_0_stack->esp = (void *)KERNEL_V_START; // Set stack pointer to the highest
                                             // user space address
 
     // Jump to the entry point of the new process

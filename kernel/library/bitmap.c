@@ -4,7 +4,7 @@
 
 /* Initialize the bitmap btmp */
 void bitmap_init(Bitmap *btmp) {
-    memset(btmp->bits, 0,
+    k_memset(btmp->bits, 0,
            btmp->btmp_bytes_len); // Set all bits to 0 (clear the bitmap)
 }
 
@@ -30,7 +30,7 @@ int bitmap_scan(Bitmap *btmp, uint32_t cnt) {
         idx_byte++;
     }
 
-    ASSERT(idx_byte < btmp->btmp_bytes_len);
+    KERNEL_ASSERT(idx_byte < btmp->btmp_bytes_len);
     if (idx_byte == btmp->btmp_bytes_len) { // If no free space is found in the
                                             // entire bitmap
         return -1;
@@ -75,7 +75,7 @@ int bitmap_scan(Bitmap *btmp, uint32_t cnt) {
 
 /* Set the bit at bit_idx to the given value (0 or 1) */
 void bitmap_set(Bitmap *btmp, uint32_t bit_idx, int8_t value) {
-    ASSERT((value == 0) || (value == 1)); // Assert that value is either 0 or 1
+    KERNEL_ASSERT((value == 0) || (value == 1)); // Assert that value is either 0 or 1
     uint32_t byte_idx = bit_idx / 8;      // Get the byte index
     uint32_t bit_odd = bit_idx % 8; // Get the bit position within the byte
 

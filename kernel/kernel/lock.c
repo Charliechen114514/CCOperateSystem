@@ -20,14 +20,14 @@ void lock_init(CCLocker *plock) {
 /* Semaphore down operation (P operation) */
 void sema_down(Semaphore *psema) {
     /* Disable interrupts to ensure atomic operation */
-    Interrupt_Status old_status = disable_intr();
+    Interrupt_Status old_status = set_intr_status(INTR_OFF);
     while (psema->value ==
            0) { // If value is 0, it means the semaphore is held by someone else
-        ASSERT(!elem_find(&psema->waiters, &running_thread()->general_tag));
+        KERNEL_ASSERT(!elem_find(&psema->waiters, &running_thread()->general_tag));
         /* The current thread should not already be in the semaphore's waiters
          * list */
         if (elem_find(&psema->waiters, &running_thread()->general_tag)) {
-            KERNEL_PANIC(
+            KERNEL_PANIC_SPIN(
                 "sema_down: thread blocked has been in waiters_list\n");
         }
         /* If semaphore's value is 0, the current thread adds itself to the
@@ -38,16 +38,16 @@ void sema_down(Semaphore *psema) {
     /* If value is 1 or the thread is awakened, proceed with acquiring the lock
      */
     psema->value--;
-    ASSERT(psema->value == 0);
+    KERNEL_ASSERT(psema->value == 0);
     /* Restore the previous interrupt status */
-    set_intr_state(old_status);
+    set_intr_status(old_status);
 }
 
 /* Semaphore up operation (V operation) */
 void sema_up(Semaphore *psema) {
     /* Disable interrupts to ensure atomic operation */
-    Interrupt_Status old_status = disable_intr();
-    ASSERT(psema->value == 0);
+    Interrupt_Status old_status = set_intr_status(INTR_OFF);
+    KERNEL_ASSERT(psema->value == 0);
     if (!list_empty(&psema->waiters)) {
         TaskStruct *thread_blocked =
             elem2entry(TaskStruct, general_tag, list_pop(&psema->waiters));
@@ -55,9 +55,9 @@ void sema_up(Semaphore *psema) {
                                         // for the semaphore
     }
     psema->value++;
-    ASSERT(psema->value == 1);
+    KERNEL_ASSERT(psema->value == 1);
     /* Restore the previous interrupt status */
-    set_intr_state(old_status);
+    set_intr_status(old_status);
 }
 
 /* Acquire lock plock */
@@ -68,7 +68,7 @@ void lock_acquire(CCLocker *plock) {
         sema_down(
             &plock->semaphore); // Perform P operation on semaphore (atomic)
         plock->holder = running_thread();
-        ASSERT(plock->holder_repeat_nr == 0);
+        KERNEL_ASSERT(plock->holder_repeat_nr == 0);
         plock->holder_repeat_nr = 1;
     } else {
         plock->holder_repeat_nr++; // If the thread already holds the lock,
@@ -78,13 +78,13 @@ void lock_acquire(CCLocker *plock) {
 
 /* Release lock plock */
 void lock_release(CCLocker *plock) {
-    ASSERT(plock->holder == running_thread());
+    KERNEL_ASSERT(plock->holder == running_thread());
     if (plock->holder_repeat_nr > 1) {
         plock->holder_repeat_nr--; // Decrease repeat count if the thread holds
                                    // the lock multiple times
         return;
     }
-    ASSERT(plock->holder_repeat_nr == 1);
+    KERNEL_ASSERT(plock->holder_repeat_nr == 1);
 
     plock->holder =
         NULL; // Set lock holder to NULL before performing V operation

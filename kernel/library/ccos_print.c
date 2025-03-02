@@ -1,11 +1,10 @@
 #include "include/library/ccos_print.h"
-#include "include/device/console_tty.h"
-#include "include/utils/early_init_console_settings.h"
+#include "include/early_print_settings.h"
+extern void __ccos_set_console_cursor(uint16_t row, uint16_t col);
 
-// set the _ccos_print.s for details
-void __ccos_set_console_cursor(uint16_t row, uint16_t col);
-void ccos_set_console_cursor(uint16_t row, uint16_t col) {
-    uint8_t __col = col + CONSOLE_WIDTH * row;
+void ccos_set_console_cursor(uint16_t row, uint16_t col)
+{
+    uint8_t __col = col + CONSOLE_WIDTH * row; 
     uint8_t __row = (CONSOLE_WIDTH * row + col - __col) % UINT8_MAX;
     __ccos_set_console_cursor(__row, __col);
 }
@@ -27,16 +26,22 @@ void pretty_write(char *message) {
     // set_console_color(CONSOLE_PEN_COLOR);
 }
 
-void verbose_write(char *message) {
+void verbose_ccputchar(uint8_t ascii_code){
+    (void)ascii_code;
+#ifdef VERBOSE
+    __ccos_putchar(ascii_code);
+#endif
+}
+void verbose_ccputs(char* message){
     (void)message;
 #ifdef VERBOSE
     ccos_puts(message);
-#endif
+#endif    
 }
 
-void verbose_write_int(uint32_t interger) {
-    (void)interger;
+void verbose_ccint(uint32_t integer){
+    (void)integer;
 #ifdef VERBOSE
-    __ccos_display_int(interger);
-#endif
+    __ccos_display_int(integer);
+#endif  
 }

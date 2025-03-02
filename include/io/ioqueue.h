@@ -2,7 +2,7 @@
 #define IOQUEUE_H
 
 #include "include/library/types.h"
-#include "include/kernel/thread.h"
+#include "include/thread/thread.h"
 #include "include/kernel/lock.h"
 
 

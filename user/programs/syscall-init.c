@@ -1,20 +1,21 @@
 #include "include/user/program/syscall-init.h"
 #include "include/device/console_tty.h"
-#include "include/filesystem/fs.h"
-#include "include/kernel/thread.h"
+#include "include/filesystem/filesystem.h"
+#include "include/thread/thread.h"
 #include "include/library/ccos_print.h"
 #include "include/library/string.h"
 #include "include/library/types.h"
 #include "include/memory/memory.h"
 #include "include/syscall/syscall.h"
+#include "include/user/program/fork.h"
 #include "include/user/program/exec.h"
 #include "include/user/program/fork.h"
-#include "include/user/program/pipe.h"
+#include "include/user/ccshell/pipe.h"
 #include "include/user/program/wait_exit.h"
 
-#define syscall_nr 32 // Number of system calls
+#define SYSCALL_SUM_NR (32) // Number of system calls
 typedef void *syscall;
-syscall syscall_table[syscall_nr]; // System call table to hold the addresses of
+syscall syscall_table[SYSCALL_SUM_NR]; // System call table to hold the addresses of
                                    // system call functions
 
 /* Return the pid of the current task */
@@ -22,12 +23,13 @@ uint32_t sys_getpid(void) {
     return running_thread()->pid; // Retrieve the PID of the running thread
 }
 
+
 extern void sys_free(void *ptr);
 extern void *sys_malloc(uint32_t size);
 
 /* Initialize the system call table */
 void syscall_init(void) {
-    verbose_write(
+    verbose_ccputs(
         "syscall_init start\n"); // Logging the start of syscall initialization
     /* Set the system call table entries for various system call numbers */
     syscall_table[SYS_GETPID] = sys_getpid; // Get process ID
@@ -35,10 +37,9 @@ void syscall_init(void) {
     syscall_table[SYS_MALLOC] = sys_malloc; // Memory allocation
     syscall_table[SYS_FREE] = sys_free;     // Free allocated memory
     syscall_table[SYS_FORK] = sys_fork;     // Fork a new process
-    syscall_table[SYS_READ] = sys_read;     // Read from file or console
-    syscall_table[SYS_PUTCHAR] =
-        sys_putchar;                         // Print a character to the console
-    syscall_table[SYS_CLEAR] = clean_screen; // Clear the screen
+    syscall_table[SYS_READ] = sys_read;
+    syscall_table[SYS_PUTCHAR] = sys_putchar;
+    syscall_table[SYS_CLEAR] = clean_screen;
     syscall_table[SYS_GETCWD] = sys_getcwd;  // Get current working directory
     syscall_table[SYS_OPEN] = sys_open;      // Open a file
     syscall_table[SYS_CLOSE] = sys_close;    // Close a file
@@ -60,7 +61,7 @@ void syscall_init(void) {
         sys_pipe; // Create a pipe for inter-process communication
     syscall_table[SYS_FD_REDIRECT] =
         sys_fd_redirect;                  // Redirect file descriptors
-    syscall_table[SYS_HELP] = sys_help;   // Show help information
-    verbose_write("syscall_init done\n"); // Logging the completion of syscall
+    syscall_table[SYS_HELP] = sys_help;
+    verbose_ccputs("syscall_init done\n"); // Logging the completion of syscall
                                           // initialization
 }

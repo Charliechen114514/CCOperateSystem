@@ -2,7 +2,7 @@
 #define LOCK_H
 #include "include/library/list.h"
 #include "include/library/types.h"
-#include "include/kernel/thread.h"
+#include "include/thread/thread.h"
 
 /* 信号量结构 */
 typedef struct {

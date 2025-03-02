@@ -1,6 +1,6 @@
 #include "include/device/console_tty.h"
 #include "include/kernel/lock.h"
-#include "include/kernel/thread.h"
+#include "include/thread/thread.h"
 #include "include/library/ccos_print.h"
 #include "include/library/types.h"
 
@@ -75,4 +75,10 @@ void console__ccos_display_int(uint32_t num) {
     console_acquire();       // Acquire the console lock
     __ccos_display_int(num); // Print the integer in hexadecimal format
     console_release();       // Release the console lock
+}
+
+
+void sys_putchar(char char_asci)
+{
+    console__ccos_putchar(char_asci);
 }

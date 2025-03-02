@@ -1,5 +1,5 @@
 #include "include/device/ide.h"
-#include "include/FormatIO/stdio-kernel.h"
+#include "include/io/stdio-kernel.h"
 #include "include/device/console_tty.h"
 #include "include/device/timer.h"
 #include "include/io/io.h"
@@ -86,7 +86,7 @@ static void select_disk(Disk *hd) {
 
 /* Write the starting sector address and sector count to the disk controller */
 static void select_sector(Disk *hd, uint32_t lba, uint8_t sec_cnt) {
-    ASSERT(lba <= max_lba);
+    KERNEL_ASSERT(lba <= max_lba);
     IDEChannel *channel = hd->my_channel;
 
     /* Write the number of sectors to read/write */
@@ -150,8 +150,8 @@ static bool busy_wait(Disk *hd) {
 
 /* Read sec_cnt sectors from the disk into buf */
 void ide_read(Disk *hd, uint32_t lba, void *buf, uint32_t sec_cnt) {
-    ASSERT(lba <= max_lba);
-    ASSERT(sec_cnt > 0);
+    KERNEL_ASSERT(lba <= max_lba);
+    KERNEL_ASSERT(sec_cnt > 0);
     lock_acquire(&hd->my_channel->lock);
 
     /* 1. Select the disk */
@@ -179,7 +179,7 @@ void ide_read(Disk *hd, uint32_t lba, void *buf, uint32_t sec_cnt) {
         if (!busy_wait(hd)) { // If failed
             char error[64];
             sprintf(error, "%s read sector %d failed!!!!!!\n", hd->name, lba);
-            KERNEL_PANIC(error);
+            KERNEL_PANIC_SPIN(error);
         }
 
         /* 5. Read data from the disk's buffer */
@@ -192,8 +192,8 @@ void ide_read(Disk *hd, uint32_t lba, void *buf, uint32_t sec_cnt) {
 
 /* Write sec_cnt sectors of data from buf to the disk */
 void ide_write(Disk *hd, uint32_t lba, void *buf, uint32_t sec_cnt) {
-    ASSERT(lba <= max_lba);
-    ASSERT(sec_cnt > 0);
+    KERNEL_ASSERT(lba <= max_lba);
+    KERNEL_ASSERT(sec_cnt > 0);
     lock_acquire(&hd->my_channel->lock);
 
     /* 1. Select the disk */
@@ -218,7 +218,7 @@ void ide_write(Disk *hd, uint32_t lba, void *buf, uint32_t sec_cnt) {
         if (!busy_wait(hd)) { // If failed
             char error[64];
             sprintf(error, "%s write sector %d failed!!!!!!\n", hd->name, lba);
-            KERNEL_PANIC(error);
+            KERNEL_PANIC_SPIN(error);
         }
 
         /* 5. Write data to the disk */
@@ -253,7 +253,7 @@ static void identify_disk(Disk *hd) {
     if (!busy_wait(hd)) { // If failed
         char error[64];
         sprintf(error, "%s identify failed!!!!!!\n", hd->name);
-        KERNEL_PANIC(error);
+        KERNEL_PANIC_SPIN(error);
     }
     read_from_sector(hd, id_info, 1);
 
@@ -261,7 +261,7 @@ static void identify_disk(Disk *hd) {
     uint8_t sn_start = 10 * 2, sn_len = 20, md_start = 27 * 2, md_len = 40;
     swap_pairs_bytes(&id_info[sn_start], buf, sn_len);
     verbose_printk("     disk %s info:\n      SN: %s\n", hd->name, buf);
-    memset(buf, 0, sizeof(buf));
+    k_memset(buf, 0, sizeof(buf));
     swap_pairs_bytes(&id_info[md_start], buf, md_len);
     verbose_printk("      MODULE: %s\n", buf);
     uint32_t sectors = *(uint32_t *)&id_info[60 * 2];
@@ -296,7 +296,7 @@ static void partition_scan(Disk *hd, uint32_t ext_lba) {
                 list_append(&partition_list, &hd->prim_parts[p_no].part_tag);
                 sprintf(hd->prim_parts[p_no].name, "%s%d", hd->name, p_no + 1);
                 p_no++;
-                ASSERT(p_no < 4); // Only 4 primary partitions (0,1,2,3)
+                KERNEL_ASSERT(p_no < 4); // Only 4 primary partitions (0,1,2,3)
             } else {              // Logical partitions
                 hd->logic_parts[l_no].start_lba = ext_lba + p->start_lba;
                 hd->logic_parts[l_no].sec_cnt = p->sec_cnt;
@@ -318,7 +318,7 @@ static void partition_scan(Disk *hd, uint32_t ext_lba) {
 static bool partition_info(list_elem *pelem, int arg) {
     (void)arg;
     DiskPartition *part = elem2entry(DiskPartition, part_tag, pelem);
-    printk("   %s start_lba:0x%x, sec_cnt:0x%x\n", part->name, part->start_lba,
+    verbose_printk("   %s start_lba:0x%x, sec_cnt:0x%x\n", part->name, part->start_lba,
            part->sec_cnt);
 
     /* Return false to continue traversal */
@@ -327,10 +327,10 @@ static bool partition_info(list_elem *pelem, int arg) {
 
 /* Hard disk interrupt handler */
 void intr_hd_handler(uint8_t irq_no) {
-    ASSERT(irq_no == 0x2e || irq_no == 0x2f);
+    KERNEL_ASSERT(irq_no == 0x2e || irq_no == 0x2f);
     uint8_t ch_no = irq_no - 0x2e;
     IDEChannel *channel = &channels[ch_no];
-    ASSERT(channel->irq_no == irq_no);
+    KERNEL_ASSERT(channel->irq_no == irq_no);
     /* Handle the interrupt if it was expected */
     if (channel->expecting_intr) {
         channel->expecting_intr = false;
@@ -345,7 +345,7 @@ void intr_hd_handler(uint8_t irq_no) {
 void ide_init() {
     verbose_printk("ide_init start\n");
     uint8_t hd_cnt = *((uint8_t *)(0x475)); // Get the number of hard disks
-    ASSERT(hd_cnt > 0);
+    KERNEL_ASSERT(hd_cnt > 0);
     list_init(&partition_list);
     channel_cnt = ROUNDUP(hd_cnt, 2); // Each IDE channel supports 2 disks
     IDEChannel *channel;

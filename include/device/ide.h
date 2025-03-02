@@ -11,6 +11,7 @@
 typedef struct __diskpartition DiskPartition;
 typedef struct __diskhandle Disk;
 typedef struct __idechannel IDEChannel;
+typedef struct __super_block SuperBlock;
 
 /* Partition structure */
 typedef struct __diskpartition{
@@ -19,7 +20,7 @@ typedef struct __diskpartition{
     Disk *my_disk;   // The disk to which this partition belongs
     list_elem part_tag;     // Tag for use in a queue
     char name[8];           // Partition name
-    struct super_block *sb; // Superblock of this partition
+    SuperBlock *sb; // Superblock of this partition
     Bitmap block_bitmap;    // Block bitmap
     Bitmap inode_bitmap;    // Inode bitmap
     list open_inodes;       // List of open inodes in this partition

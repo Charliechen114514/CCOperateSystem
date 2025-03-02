@@ -1,25 +1,13 @@
-#include "include/device/console_tty.h"
-#include "include/filesystem/dir.h"
-#include "include/filesystem/fs.h"
 #include "include/kernel/init.h"
-#include "include/kernel/interrupt.h"
-#include "include/kernel/thread.h"
-#include "include/library/ccos_print.h"
-#include "include/memory/memory.h"
-#include "include/shell/shell.h"
-#include "include/syscall/syscall.h"
-#include "include/user/library/user_assert.h"
-#include "include/user/program/process.h"
-#include "include/user/program/syscall-init.h"
 #include "include/user/stdio/stdio.h"
-
-#include "include/FormatIO/stdio-kernel.h"
-#include "include/device/ide.h"
-
+#include "include/user/ccshell/ccshell.h"
+#include "include/user/library/user_assertion.h"
+#include "include/user/program/wait_exit.h"
+#include "include/library/ccos_print.h"
+#include "include/syscall/syscall.h"
 void init(void);
 
 int main(void) {
-    early_console_init();                // Initialize the early console
     init_all();                          // Initialize the entire system
     thread_exit(running_thread(), true); // Exit the current thread
     return 0;
@@ -39,7 +27,7 @@ void init(void) {
                 child_pid, status);
         }
     } else {        // Child process
-        ccos_baseshell(); // Start the shell for the child process
+        ccshell(); // Start the shell for the child process
     }
-    panic("init: Why are you here?:("); // If this is reached, panic
+    user_panic("init: Why are you here?:("); // If this is reached, panic
 }

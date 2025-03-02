@@ -48,7 +48,7 @@ static struct tss tss;
 
 /* Update the esp0 field of the TSS to the stack pointer of the given task (pthread) */
 void update_tss_esp(TaskStruct *pthread) {
-    tss.esp0 = (uint32_t *)((uint32_t)pthread + PGSIZE);
+    tss.esp0 = (uint32_t *)((uint32_t)pthread + PG_SIZE);
 }
 
 /* Create a GDT descriptor */
@@ -68,9 +68,9 @@ static GDT_Descriptor make_gdt_desc(uint32_t *desc_addr, uint32_t limit,
 
 /* Initialize the TSS in the GDT and reload the GDT */
 void tss_init() {
-    verbose_write("tss_init start\n");
+    verbose_ccputs("tss_init start\n");
     uint32_t tss_size = sizeof(tss);
-    memset(&tss, 0, tss_size);  // Clear the TSS structure
+    k_memset(&tss, 0, tss_size);  // Clear the TSS structure
     tss.ss0 = SELECTOR_K_STACK; // Set the stack segment for privilege level 0
     tss.io_base = tss_size;     // Set the I/O base address to the size of TSS
 
@@ -96,5 +96,5 @@ void tss_init() {
         ((8 * 7 - 1) | ((uint64_t)(uint32_t)GDT_ACTUAL_POSITION << 16)); // 7 descriptors total
     asm volatile("lgdt %0" : : "m"(gdt_operand));  // Load the GDT
     asm volatile("ltr %w0" : : "r"(SELECTOR_TSS)); // Load the TSS selector
-    verbose_write("tss_init and ltr done\n");
+    verbose_ccputs("tss_init and ltr done\n");
 }

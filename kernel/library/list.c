@@ -12,7 +12,7 @@ void list_init(list *list) {
 /* Insert an element before a given element (before the 'before' element) */
 void list_insert_before(list_elem *before, list_elem *elem) {
     Interrupt_Status old_status =
-        set_intr_state(INTR_OFF); // Disable interrupts to ensure atomicity
+        set_intr_status(INTR_OFF); // Disable interrupts to ensure atomicity
 
     /* Update the previous node of 'before' to point to 'elem' */
     before->prev->next = elem;
@@ -24,7 +24,7 @@ void list_insert_before(list_elem *before, list_elem *elem) {
     /* Update 'before' to point back to 'elem' */
     before->prev = elem;
 
-    set_intr_state(old_status); // Restore the interrupt state
+    set_intr_status(old_status); // Restore the interrupt state
 }
 
 /* Push an element to the front of the list (similar to stack push operation) */
@@ -41,13 +41,13 @@ void list_append(list *plist, list_elem *elem) {
 /* Remove an element from the list */
 void list_remove(list_elem *pelem) {
     Interrupt_Status old_status =
-        set_intr_state(INTR_OFF); // Disable interrupts to ensure atomicity
+        set_intr_status(INTR_OFF); // Disable interrupts to ensure atomicity
 
     /* Update the previous node of 'pelem' to point to its next node */
     pelem->prev->next = pelem->next;
     pelem->next->prev = pelem->prev;
 
-    set_intr_state(old_status); // Restore the interrupt state
+    set_intr_status(old_status); // Restore the interrupt state
 }
 
 /* Pop the first element from the list and return it (similar to stack pop

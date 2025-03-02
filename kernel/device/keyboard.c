@@ -129,9 +129,9 @@ static void intr_keyboard_handler(void) {
 
 /* Initialize the keyboard */
 void keyboard_init(void) {
-    verbose_write("keyboard init start\n");
+    verbose_ccputs("keyboard init start\n");
     init_IOQueue(&keyboard_ringbuffer); // Initialize the keyboard ring buffer
     register_intr_handler(
         0x21, intr_keyboard_handler); // Register the keyboard interrupt handler
-    verbose_write("keyboard init done\n");
+    verbose_ccputs("keyboard init done\n");
 }

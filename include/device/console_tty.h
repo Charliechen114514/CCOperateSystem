@@ -14,4 +14,7 @@ void    console_ccos_puts(char* str);
 void    console__ccos_putchar(uint8_t char_asci);
 void    console__ccos_display_int(uint32_t num);
 
+void sys_putchar(char char_asci);
+
+
 #endif

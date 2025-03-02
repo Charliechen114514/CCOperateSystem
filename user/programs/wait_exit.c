@@ -1,22 +1,22 @@
 #include "include/user/program/wait_exit.h"
-#include "include/FormatIO/stdio-kernel.h"
+#include "include/io/stdio-kernel.h"
 #include "include/filesystem/file.h"
-#include "include/filesystem/fs.h"
-#include "include/kernel/thread.h"
+#include "include/filesystem/filesystem.h"
+#include "include/thread/thread.h"
 #include "include/library/bitmap.h"
 #include "include/library/kernel_assert.h"
 #include "include/library/list.h"
 #include "include/library/types.h"
 #include "include/memory/memory.h"
 #include "include/memory/memory_settings.h"
-#include "include/user/program/pipe.h"
+#include "include/user/ccshell/pipe.h"
 
 /* Release user process resources:
  * 1. Physical pages corresponding to page tables
  * 2. Virtual memory pool that occupies physical page frames
  * 3. Close open files */
 static void release_prog_resource(TaskStruct *release_thread) {
-    uint32_t *pgdir_vaddr = release_thread->pgdir;
+    uint32_t *pgdir_vaddr = release_thread->pg_dir;
     uint16_t user_pde_nr = 768, pde_idx = 0;
     uint32_t pde = 0;
     uint32_t *v_pde_ptr =
@@ -35,8 +35,7 @@ static void release_prog_resource(TaskStruct *release_thread) {
     while (pde_idx < user_pde_nr) {
         v_pde_ptr = pgdir_vaddr + pde_idx;
         pde = *v_pde_ptr;
-        if (pde &
-            0x00000001) { // If the page directory entry's 'present' bit is set
+        if (pde & PG_P_1) { // If the page directory entry's 'present' bit is set
             first_pte_vaddr_in_pde = pte_ptr(
                 pde_idx *
                 0x400000); // A page table represents 4MB, i.e., 0x400000
@@ -44,17 +43,17 @@ static void release_prog_resource(TaskStruct *release_thread) {
             while (pte_idx < user_pte_nr) {
                 v_pte_ptr = first_pte_vaddr_in_pde + pte_idx;
                 pte = *v_pte_ptr;
-                if (pte & 0x00000001) {
+                if (pte & PG_P_1) {
                     /* Clear the corresponding physical page frame in the memory
                      * pool bitmap */
-                    pg_phy_addr = pte & 0xfffff000;
+                    pg_phy_addr = pte & PG_FETCH_OFFSET;
                     free_a_phy_page(pg_phy_addr);
                 }
                 pte_idx++;
             }
             /* Clear the physical page frame recorded in pde from the memory
              * pool bitmap */
-            pg_phy_addr = pde & 0xfffff000;
+            pg_phy_addr = pde & PG_FETCH_OFFSET;
             free_a_phy_page(pg_phy_addr);
         }
         pde_idx++;
@@ -62,7 +61,7 @@ static void release_prog_resource(TaskStruct *release_thread) {
 
     /* Reclaim physical memory occupied by the user virtual address pool */
     uint32_t bitmap_pg_cnt =
-        (release_thread->userprog_vaddr.vaddr_bitmap.btmp_bytes_len) / PGSIZE;
+        (release_thread->userprog_vaddr.vaddr_bitmap.btmp_bytes_len) / PG_SIZE;
     uint8_t *user_vaddr_pool_bitmap =
         release_thread->userprog_vaddr.vaddr_bitmap.bits;
     mfree_page(PF_KERNEL, user_vaddr_pool_bitmap, bitmap_pg_cnt);
@@ -88,10 +87,12 @@ static void release_prog_resource(TaskStruct *release_thread) {
 /* list_traversal callback function,
  * Find if the parent_pid of pelem is ppid, return true if found, otherwise
  * return false */
-static bool find_child(list_elem *pelem, int32_t ppid) {
+static bool find_child(list_elem *pelem, int32_t ppid)
+{
     TaskStruct *pthread = elem2entry(TaskStruct, all_list_tag, pelem);
     if (pthread->parent_pid ==
-        ppid) {      // If the parent_pid of the thread matches the ppid
+        ppid)
+    {                // If the parent_pid of the thread matches the ppid
         return true; // list_traversal stops if the callback function returns
                      // true, so we return true here
     }
@@ -100,9 +101,11 @@ static bool find_child(list_elem *pelem, int32_t ppid) {
 
 /* list_traversal callback function,
  * Find tasks in TASK_HANGING state */
-static bool find_hanging_child(list_elem *pelem, int32_t ppid) {
+static bool find_hanging_child(list_elem *pelem, int32_t ppid)
+{
     TaskStruct *pthread = elem2entry(TaskStruct, all_list_tag, pelem);
-    if (pthread->parent_pid == ppid && pthread->status == TASK_HANGING) {
+    if (pthread->parent_pid == ppid && pthread->status == TASK_HANGING)
+    {
         return true;
     }
     return false;
@@ -110,10 +113,12 @@ static bool find_hanging_child(list_elem *pelem, int32_t ppid) {
 
 /* list_traversal callback function,
  * Adopt a child process to init */
-static bool init_adopt_a_child(list_elem *pelem, int32_t pid) {
+static bool init_adopt_a_child(list_elem *pelem, int32_t pid)
+{
     TaskStruct *pthread = elem2entry(TaskStruct, all_list_tag, pelem);
     if (pthread->parent_pid ==
-        pid) {                   // If the parent_pid of the process matches pid
+        pid)
+    {                            // If the parent_pid of the process matches pid
         pthread->parent_pid = 1; // Adopt by init process
     }
     return false; // Let list_traversal continue to the next element
@@ -121,15 +126,18 @@ static bool init_adopt_a_child(list_elem *pelem, int32_t pid) {
 
 /* Wait for child process to call exit, save the exit status to the variable
  * pointed by status. Return child process pid on success, -1 on failure */
-pid_t sys_wait(int32_t *status) {
+pid_t sys_wait(int32_t *status)
+{
     TaskStruct *parent_thread = running_thread();
 
-    while (1) {
+    while (1)
+    {
         /* Handle tasks that are already in TASK_HANGING state first */
         list_elem *child_elem = list_traversal(
             &thread_all_list, find_hanging_child, parent_thread->pid);
         /* If there is a hanging child process */
-        if (child_elem != NULL) {
+        if (child_elem != NULL)
+        {
             TaskStruct *child_thread =
                 elem2entry(TaskStruct, all_list_tag, child_elem);
             *status = child_thread->exit_status;
@@ -150,9 +158,12 @@ pid_t sys_wait(int32_t *status) {
         /* Check if there are any child processes */
         child_elem =
             list_traversal(&thread_all_list, find_child, parent_thread->pid);
-        if (child_elem == NULL) { // If no child processes, return -1
+        if (child_elem == NULL)
+        { // If no child processes, return -1
             return -1;
-        } else {
+        }
+        else
+        {
             /* If the child process has not exited yet, block the parent process
              * until the child process exits */
             thread_block(TASK_WAITING);
@@ -161,11 +172,13 @@ pid_t sys_wait(int32_t *status) {
 }
 
 /* Used by the child process to terminate itself */
-void sys_exit(int32_t status) {
+void sys_exit(int32_t status)
+{
     TaskStruct *child_thread = running_thread();
     child_thread->exit_status = status;
-    if (child_thread->parent_pid == -1) {
-        KERNEL_PANIC("sys_exit: child_thread->parent_pid is -1\n");
+    if (child_thread->parent_pid == -1)
+    {
+        KERNEL_PANIC_SPIN("sys_exit: child_thread->parent_pid is -1\n");
     }
 
     /* Adopt all the child processes of child_thread to init */
@@ -177,7 +190,8 @@ void sys_exit(int32_t status) {
     /* If the parent process is waiting for the child process to exit, wake it
      * up */
     TaskStruct *parent_thread = pid2thread(child_thread->parent_pid);
-    if (parent_thread->status == TASK_WAITING) {
+    if (parent_thread->status == TASK_WAITING)
+    {
         thread_unblock(parent_thread);
     }
 
