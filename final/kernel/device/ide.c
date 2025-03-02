@@ -318,7 +318,7 @@ static void partition_scan(Disk *hd, uint32_t ext_lba) {
 static bool partition_info(list_elem *pelem, int arg) {
     (void)arg;
     DiskPartition *part = elem2entry(DiskPartition, part_tag, pelem);
-    printk("   %s start_lba:0x%x, sec_cnt:0x%x\n", part->name, part->start_lba,
+    verbose_printk("   %s start_lba:0x%x, sec_cnt:0x%x\n", part->name, part->start_lba,
            part->sec_cnt);
 
     /* Return false to continue traversal */

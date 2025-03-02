@@ -43,6 +43,8 @@
         "file.h": "c",
         "pipe.h": "c",
         "fallthrough.h": "c",
-        "stdio-kernel.h": "c"
+        "stdio-kernel.h": "c",
+        "process.h": "c",
+        "user_assert.h": "c"
     }
 }

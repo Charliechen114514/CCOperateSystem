@@ -1,6 +1,7 @@
 #include "include/memory/memory_settings.h"
 #include "include/memory/memory_tools.h"
 #include "include/memory/memory.h"
+#include "include/tools/math_tools.h"
 #include "include/library/kernel_assert.h"
 #include "include/library/string.h"
 #include "include/library/ccos_print.h"
@@ -244,6 +245,10 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
     return (void *)vaddr;
 }
 
+
+
+
+
 // Function to initialize the physical memory pools
 static void init_memory_pool(const uint32_t all_memory)
 {
@@ -316,6 +321,7 @@ static void init_memory_pool(const uint32_t all_memory)
 
     verbose_ccputs("     memory pool init done\n");
 }
+
 
 // Function to initialize memory management system
 void memory_management_init(void)

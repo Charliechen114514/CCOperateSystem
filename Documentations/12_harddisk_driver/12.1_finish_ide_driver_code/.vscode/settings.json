@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "types.h": "c",
+        "interrupt.h": "c",
+        "syscall.h": "c",
+        "syscall-init.h": "c",
+        "fast_utils.h": "c",
+        "console_tty.h": "c",
+        "kernel_assert.h": "c",
+        "pci.h": "c",
+        "bit_tools.h": "c",
+        "selectors.h": "c"
+    }
+}

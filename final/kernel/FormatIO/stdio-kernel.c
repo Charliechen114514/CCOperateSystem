@@ -21,9 +21,15 @@ void printk(const char *format, ...) {
     console_ccos_puts(buf);
 }
 
+#define VERBOSE
 void verbose_printk(const char *format, ...) {
     (void)format;
 #ifdef VERBOSE
-    printk(farmat, ...);
+va_list args;
+    va_start(args, format);
+    char buf[1024] = {0};
+    vsprintf(buf, format, args);
+    va_end(args);
+    console_ccos_puts(buf);
 #endif
 }

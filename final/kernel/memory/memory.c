@@ -636,10 +636,10 @@ static void mem_pool_init(uint32_t all_mem) {
 
 /* Prepare for malloc by initializing memory block descriptors */
 void block_desc_init(MemoryBlockDescriptor *desc_array) {
-    uint16_t desc_idx, block_size = 16;
+    uint16_t block_size = 16;
 
     /* Initialize each memory block descriptor */
-    for (desc_idx = 0; desc_idx < DESC_CNT; desc_idx++) {
+    for (uint16_t desc_idx = 0; desc_idx < DESC_CNT; desc_idx++) {
         desc_array[desc_idx].block_size = block_size;
 
         /* Initialize the number of memory blocks in an arena */

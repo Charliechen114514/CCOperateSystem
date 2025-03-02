@@ -2,6 +2,7 @@
 #define THREAD_H
 #include "include/library/types.h"
 #include "include/thread/thread_settings.h"
+#include "include/memory/memory_settings.h"
 #include "include/library/list.h"
 #include "include/memory/memory.h"
 #define TASK_NAME_ARRAY_SZ (16) // Maximum size for task name

@@ -3,8 +3,8 @@
 # 	U should also modify the bochsrc file
 #	For currect loadins
 # 	------------------------------------------
-BOOT_IMG = boot.img
-
+BOOT_IMG 	= boot.img
+DISK_NAME	= disk.img
 # 	------------ Binary file name ---------------
 MBR 	= mbr
 LOADER 	= loader
@@ -149,7 +149,7 @@ clean:
 # Clean the compile time folder	
 	rm -rf ${OBJ_DIR}/* ${OBJ_DIR}
 # clean the bochs running log and image
-	rm -f *.out *.img
+	rm -f *.out ${BOOT_IMG} ${BOOT_IMG}.lock
 	
 
 # Add files you gonna dump speical!
@@ -175,6 +175,12 @@ upload:
 
 rebuild:
 	make clean;make
+
+create_disk:
+	bximage -func=create -hd=80M -q ${DISK_NAME}
+
+rm_disk:
+	rm -f ${DISK_NAME}
 
 all:
 	make clean;make;make upload
