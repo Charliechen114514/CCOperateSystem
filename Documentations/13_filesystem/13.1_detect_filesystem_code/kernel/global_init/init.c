@@ -9,6 +9,7 @@
 #include "include/memory/memory.h"
 #include "include/user/program/syscall-init.h"
 #include "include/user/tss/tss.h"
+#include "include/filesystem/filesystem.h"
 
 /* Responsible for initializing all modules */
 void init_all() {
@@ -23,4 +24,5 @@ void init_all() {
     syscall_init();  // Initialize system calls
     set_intr_status(INTR_ON);   // Enable interrupts, required for ide_init
     ide_init();      // Initialize hard disk
+    filesystem_init();
 }

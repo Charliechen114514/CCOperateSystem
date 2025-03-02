@@ -79,7 +79,9 @@ KERNEL_MAIN_OBJ = \
       	$(OBJ_DIR)/switch_thread.o $(OBJ_DIR)/console_tty.o $(OBJ_DIR)/lock.o \
       	$(OBJ_DIR)/keyboard.o $(OBJ_DIR)/ioqueue.o $(OBJ_DIR)/tss.o \
       	$(OBJ_DIR)/process.o $(OBJ_DIR)/syscall.o $(OBJ_DIR)/syscall-init.o \
-      	$(OBJ_DIR)/stdio.o $(OBJ_DIR)/ide.o $(OBJ_DIR)/stdio-kernel.o
+      	$(OBJ_DIR)/stdio.o $(OBJ_DIR)/ide.o $(OBJ_DIR)/stdio-kernel.o \
+		$(OBJ_DIR)/filesystem.o
+		
 # boot images requires the followings
 ${BOOT_IMG}: \
 	${OBJ_DIR}/${MBR}.bin ${OBJ_DIR}/${LOADER}.bin ${OBJ_DIR}/${KERNEL}.bin
@@ -116,6 +118,9 @@ ${KERNEL_MAIN_OBJ}:
 	${GCC} ${KERMAIN_CFLAGS} ${USER_C_SRC_DIR}/stdio/stdio.c -o $(OBJ_DIR)/stdio.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/device/ide.c -o $(OBJ_DIR)/ide.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/io/stdio-kernel.c -o $(OBJ_DIR)/stdio-kernel.o
+	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/filesystem/filesystem.c -o $(OBJ_DIR)/filesystem.o
+
+
 # MBR guidance asm
 ${OBJ_DIR}/${MBR}.bin:
 	mkdir -p ${OBJ_DIR}

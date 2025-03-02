@@ -1,21 +1,16 @@
-#include "include/thread/thread.h"
 #include "include/device/console_tty.h"
-
 #include "include/kernel/interrupt.h"
+#include "include/kernel/lock.h"
 #include "include/library/ccos_print.h"
 #include "include/library/kernel_assert.h"
+#include "include/library/list.h"
 #include "include/library/string.h"
 #include "include/library/types.h"
 #include "include/memory/memory.h"
 #include "include/memory/memory_settings.h"
+#include "include/thread/thread.h"
 #include "include/user/program/process.h"
 #include "include/user/stdio/stdio.h"
-
-#include "include/kernel/interrupt.h"
-#include "include/kernel/lock.h"
-#include "include/library/kernel_assert.h"
-#include "include/library/list.h"
-#include "include/library/types.h"
 
 /* Bitmap for pid, supporting up to 1024 pids */
 uint8_t pid_bitmap_bits[128] = {0};
@@ -109,18 +104,6 @@ void init_thread(TaskStruct *pthread, char *name, int prio) {
     pthread->elapsed_ticks = 0;
     pthread->pgdir = NULL;
 
-    /* Initialize the file descriptor table (stdin, stdout, stderr) */
-    pthread->fd_table[0] = 0; // stdin
-    pthread->fd_table[1] = 1; // stdout
-    pthread->fd_table[2] = 2; // stderr
-    /* Initialize the remaining file descriptors to -1 (invalid) */
-    uint8_t fd_idx = 3;
-    while (fd_idx < MAX_FILES_OPEN_PER_PROC) {
-        pthread->fd_table[fd_idx] = -1;
-        fd_idx++;
-    }
-    pthread->cwd_inode_nr = 0; // Set the default working directory to root
-    pthread->parent_pid = -1;  // -1 indicates no parent process
     pthread->stack_magic =
         TASK_MAGIC; // Custom magic number for stack validation
 }

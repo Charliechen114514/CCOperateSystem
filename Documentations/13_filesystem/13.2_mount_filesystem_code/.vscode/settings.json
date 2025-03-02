@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "kernel_assert.h": "c",
+        "memory_settings.h": "c"
+    }
+}

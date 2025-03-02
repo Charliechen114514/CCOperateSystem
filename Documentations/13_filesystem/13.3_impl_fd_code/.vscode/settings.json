@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "super_block.h": "c",
+        "filesystem.h": "c",
+        "ccos_print.h": "c",
+        "stdio-kernel.h": "c",
+        "filesystem_settings.h": "c"
+    }
+}

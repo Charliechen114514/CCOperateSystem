@@ -116,7 +116,7 @@ static void partition_format(DiskPartition *part) {
 
     /* Initialize the superblock */
     struct super_block sb;
-    sb.magic = 0x19590318;
+    sb.magic = SUPER_BLOCK_MAGIC;
     sb.sec_cnt = part->sec_cnt;
     sb.inode_cnt = MAX_FILES_PER_PART;
     sb.part_lba_base = part->start_lba;
@@ -1076,7 +1076,7 @@ void filesys_init() {
 
                     /* Only support our own file system. If the disk already has
                      * a file system, don't format it */
-                    if (sb_buf->magic == 0x19590318) {
+                    if (sb_buf->magic == SUPER_BLOCK_MAGIC) {
                         printk("%s has filesystem\n", part->name);
                     } else { // Unsupported file systems are treated as having
                              // no file system

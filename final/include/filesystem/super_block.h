@@ -2,6 +2,8 @@
 #define __FS_SUPER_BLOCK_H
 #include "include/library/types.h"
 
+#define SUPER_BLOCK_MAGIC     (0x20040303)
+
 /* 超级块 */
 struct super_block {
    uint32_t magic;		    // 用来标识文件系统类型,支持多文件系统的操作系统通过此标志来识别文件系统类型

@@ -8,8 +8,6 @@
 
 #define TASK_NAME_ARRAY_SZ (16)     // Maximum length of a thread name
 #define TASK_MAGIC (0x11451419)     // Magic number for stack integrity check
-#define MAX_FILES_OPEN_PER_PROC (8) // Maximum number of open files per process
-
 /**
  * @brief Function pointer type for thread execution.
  *
@@ -124,11 +122,6 @@ typedef struct {
     VirtualMemoryHandle userprog_vaddr; // User process virtual memory space
     MemoryBlockDescriptor
         u_block_desc[DESC_CNT]; // User process memory block descriptors
-    int32_t
-        fd_table[MAX_FILES_OPEN_PER_PROC]; // File descriptors of opened files
-    uint32_t cwd_inode_nr; // Inode number of the current working directory
-    pid_t parent_pid;      // Parent process ID
-    int8_t exit_status;    // Exit status set by the process when terminating
     uint32_t stack_magic;  // Stack boundary marker for overflow detection
 } TaskStruct;
 
@@ -255,6 +248,5 @@ void thread_exit(TaskStruct *thread_over, bool need_schedule);
  * @return Pointer to the TaskStruct, or NULL if not found.
  */
 TaskStruct *pid2thread(int32_t pid);
-
 
 #endif
