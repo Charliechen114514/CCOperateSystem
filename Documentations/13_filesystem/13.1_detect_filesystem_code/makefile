@@ -74,7 +74,7 @@ KERNEL_MAIN_OBJ = \
 		$(OBJ_DIR)/main.o $(OBJ_DIR)/init.o $(OBJ_DIR)/interrupt.o \
       	$(OBJ_DIR)/timer.o $(OBJ_DIR)/_interrupt_asm.o $(OBJ_DIR)/pci.o\
 		${OBJ_DIR}/ccos_print.o ${OBJ_DIR}/_ccos_print.o \
-      	$(OBJ_DIR)/kernel_assert.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/bitmap.o \
+      	$(OBJ_DIR)/kernel_assert.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/memory_tools.o $(OBJ_DIR)/bitmap.o \
       	$(OBJ_DIR)/string.o $(OBJ_DIR)/thread.o $(OBJ_DIR)/list.o \
       	$(OBJ_DIR)/switch_thread.o $(OBJ_DIR)/console_tty.o $(OBJ_DIR)/lock.o \
       	$(OBJ_DIR)/keyboard.o $(OBJ_DIR)/ioqueue.o $(OBJ_DIR)/tss.o \
@@ -105,6 +105,7 @@ ${KERNEL_MAIN_OBJ}:
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/library/string.c -o $(OBJ_DIR)/string.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/library/bitmap.c -o $(OBJ_DIR)/bitmap.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/memory/memory.c -o $(OBJ_DIR)/memory.o
+	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/memory/memory_tools.c -o $(OBJ_DIR)/memory_tools.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/thread/thread.c -o $(OBJ_DIR)/thread.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/library/list.c -o $(OBJ_DIR)/list.o
 	${GCC} ${KERMAIN_CFLAGS} ${KER_C_DIR}/device/console_tty.c -o $(OBJ_DIR)/console_tty.o

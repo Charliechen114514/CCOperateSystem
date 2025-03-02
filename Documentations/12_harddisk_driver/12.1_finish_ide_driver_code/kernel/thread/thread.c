@@ -98,7 +98,7 @@ void init_thread(TaskStruct *pthread, char *name, int prio) {
     }
 
     /* Initialize the thread's kernel stack */
-    pthread->self_kstack = (uint32_t *)((uint32_t)pthread + PGSIZE);
+    pthread->self_kstack = (uint32_t *)((uint32_t)pthread + PG_SIZE);
     pthread->priority = prio;
     pthread->ticks = prio; // Set the number of ticks based on priority
     pthread->elapsed_ticks = 0;

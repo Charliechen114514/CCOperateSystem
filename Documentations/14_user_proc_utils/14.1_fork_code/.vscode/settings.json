@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "ccos_print.h": "c",
+        "syscall-init.h": "c",
+        "stdio.h": "c",
+        "thread.h": "c"
+    }
+}

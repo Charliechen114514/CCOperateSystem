@@ -33,7 +33,7 @@ void start_process(void *filename_) {
         (EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1); // Set flags for user mode
     proc_stack->esp =
         (void *)((uint32_t)get_a_page(PF_USER, USER_STACK3_VADDR) +
-                 PGSIZE);             // Set up user stack
+                 PG_SIZE);             // Set up user stack
     proc_stack->ss = SELECTOR_U_DATA; // Set the stack segment selector
     asm volatile("movl %0, %%esp; \
          jmp intr_exit"
@@ -118,11 +118,11 @@ uint32_t *create_page_dir(void) {
 void create_user_vaddr_bitmap(TaskStruct *user_prog) {
     user_prog->userprog_vaddr.vaddr_start = USER_VADDR_START;
     uint32_t bitmap_pg_cnt =
-        ROUNDUP((0xc0000000 - USER_VADDR_START) / PGSIZE / 8, PGSIZE);
+        ROUNDUP((0xc0000000 - USER_VADDR_START) / PG_SIZE / 8, PG_SIZE);
     user_prog->userprog_vaddr.vaddr_bitmap.bits =
         get_kernel_pages(bitmap_pg_cnt);
     user_prog->userprog_vaddr.vaddr_bitmap.btmp_bytes_len =
-        (0xc0000000 - USER_VADDR_START) / PGSIZE / 8;
+        (0xc0000000 - USER_VADDR_START) / PG_SIZE / 8;
     bitmap_init(&user_prog->userprog_vaddr.vaddr_bitmap);
 }
 

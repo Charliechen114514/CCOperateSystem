@@ -10,6 +10,8 @@
         "kernel_assert.h": "c",
         "pci.h": "c",
         "bit_tools.h": "c",
-        "selectors.h": "c"
+        "selectors.h": "c",
+        "memory_settings.h": "c",
+        "memory_tools.h": "c"
     }
 }

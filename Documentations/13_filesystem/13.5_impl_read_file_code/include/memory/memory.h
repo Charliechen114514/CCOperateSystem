@@ -21,7 +21,9 @@ typedef struct {
     list        free_list;     // 目前可用的mem_block链表
 }MemoryBlockDescriptor;
 
-extern struct pool kernel_pool, user_pool;
+typedef struct __mem_pool MemoryPool;
+
+extern MemoryPool kernel_pool, user_pool;
 
 typedef enum { PF_KERNEL = 1, PF_USER = 2 } PoolFlag;
 

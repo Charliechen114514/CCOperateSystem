@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "process.h": "c",
+        "thread.h": "c",
+        "filesystem.h": "c"
+    }
+}

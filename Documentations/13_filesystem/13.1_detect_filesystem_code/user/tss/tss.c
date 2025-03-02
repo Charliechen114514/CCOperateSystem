@@ -48,7 +48,7 @@ static struct tss tss;
 
 /* Update the esp0 field of the TSS to the stack pointer of the given task (pthread) */
 void update_tss_esp(TaskStruct *pthread) {
-    tss.esp0 = (uint32_t *)((uint32_t)pthread + PGSIZE);
+    tss.esp0 = (uint32_t *)((uint32_t)pthread + PG_SIZE);
 }
 
 /* Create a GDT descriptor */

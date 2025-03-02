@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "inode.h": "c",
+        "types.h": "c"
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "ioqueue.h": "c",
+        "filesystem.h": "c",
+        "file.h": "c",
+        "pipe.h": "c"
+    }
+}

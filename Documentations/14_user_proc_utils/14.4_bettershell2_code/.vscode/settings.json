@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "thread_relative_print.h": "c",
+        "types.h": "c",
+        "buildin_cmd.h": "c",
+        "ccshell.h": "c"
+    }
+}
