@@ -4,7 +4,7 @@ if [ ! -e disk_image ]; then
     make create_disk
 fi
 
-echo -e "label: dos
+echo "label: dos
 unit: sectors
 
 disk.img1 : start=2048,  size=30208, type=83
