@@ -54,9 +54,9 @@ When executing a far return, the processor does the following:
    specified with the n operand to release parameters from the stack. 
 4. Resumes execution of the calling procedure.
 
-![image-20250303093034240](./Intel X86_64 Call And Reture Procedure/image-20250303093034240.png)
+![image-20250303093034240](./assets/image-20250303093034240.png)
 
-![image-20250303093041904](./Intel X86_64 Call And Reture Procedure/image-20250303093041904.png)
+![image-20250303093041904](./assets/image-20250303093041904.png)
 
 ## 6.4.3 Parameter Passing
 
@@ -83,7 +83,7 @@ The PUSHA and POPA instructions facilitate saving and restoring the contents of 
 6.4.5 Calls to Other Privilege Levels
 The IA-32 architecture’s protection mechanism recognizes four privilege levels, numbered from 0 to 3, where a greater number mean less privilege. The reason to use privilege levels is to improve the reliability of operating systems. For example, Figure 6-4 shows how privilege levels can be interpreted as rings of protection. 
 
-![image-20250303093637026](./Intel X86_64 Call And Reture Procedure/image-20250303093637026.png)
+![image-20250303093637026](./assets/image-20250303093637026.png)
 
 In this example, the highest privilege level 0 (at the center of the diagram) is used for segments that contain the most critical code modules in the system, usually the kernel of an operating system. The outer rings (with progres-sively lower privileges) are used for segments that contain code modules for less critical software. Code modules in lower privilege segments can only access modules operating at higher privilege segments by means of a tightly controlled and protected interface called a gate. Attempts to access higher privilege segments without going through a protection gate and without having sufficient access rights causes a general-protection exception (#GP) to be generated.If an operating system or executive uses this multilevel protection mechanism, a call to a procedure that is in a more privileged protection level than the calling procedure is handled in a similar manner as a far call (see Section 6.4.2, “Far CALL and RET Operation”). The differences are as follows:
 The segment selector provided in the CALL instruction references a special data structure called a call gate descriptor. Among other things, the call gate descriptor provides the following:
@@ -109,9 +109,9 @@ If shadow stack is enabled at the privilege level of the calling procedure, then
 the SSP of the calling procedure internally. If the calling procedure is at privilege level 3, the SSP of the calling 
 procedure is also saved into the IA32_PL3_SSP MSR.
 
-![image-20250303093702711](./Intel X86_64 Call And Reture Procedure/image-20250303093702711.png)
+![image-20250303093702711](./assets/image-20250303093702711.png)
 
-![image-20250303093709976](./Intel X86_64 Call And Reture Procedure/image-20250303093709976.png)
+![image-20250303093709976](./assets/image-20250303093709976.png)
 
 If shadow stack is enabled at the privilege level of the called procedure, then the SSP for the called procedure is obtained from one of the MSRs listed below, depending on the target privilege level. The SSP obtained is then verified to ensure it points to a valid supervisor shadow stack that is not currently active by verifying a supervisor shadow stack token at the address pointed to by the SSP. The operations performed to verify and acquire the supervisor shadow stack token by making it busy are as described in Section 18.2.3 of the Intel® 64 and IA-32 Architectures Software Developer’s Manual, Volume 1.
 — IA32_PL2_SSP if transitioning to ring 2.
