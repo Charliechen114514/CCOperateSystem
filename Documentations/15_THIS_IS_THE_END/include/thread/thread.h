@@ -233,13 +233,6 @@ void thread_yield(void);
 pid_t fork_pid(void);
 
 /**
- * @brief Display process and thread information.
- *
- * Prints the status of all threads and processes.
- */
-void sys_ps(void);
-
-/**
  * @brief Terminate a thread.
  *
  * Ends a thread's execution and optionally schedules a new one.

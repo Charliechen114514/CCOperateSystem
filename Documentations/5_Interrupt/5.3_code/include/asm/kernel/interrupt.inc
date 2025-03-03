@@ -5,7 +5,7 @@
 
 ; EOI command
 %define EOI         0x20
-%define SLAVE_PORT  0x0a
+%define SLAVE_PORT  0xa0
 %define MASTER_PORT 0x20
 
 %macro INTR_VECTOR 2

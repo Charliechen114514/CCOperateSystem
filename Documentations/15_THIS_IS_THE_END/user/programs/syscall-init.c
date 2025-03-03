@@ -12,6 +12,7 @@
 #include "include/user/program/fork.h"
 #include "include/user/ccshell/pipe.h"
 #include "include/user/program/wait_exit.h"
+#include "include/thread/thread_relative_print.h"
 
 #define SYSCALL_SUM_NR (32) // Number of system calls
 typedef void *syscall;

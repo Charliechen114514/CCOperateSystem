@@ -4,7 +4,8 @@ if [ ! -e disk_image ]; then
     make create_disk
 fi
 
-echo "label: dos
+echo "if stuck, try Ctrl-Z to Exit the scripts"
+echo -e "label: dos
 unit: sectors
 
 disk.img1 : start=2048,  size=30208, type=83
