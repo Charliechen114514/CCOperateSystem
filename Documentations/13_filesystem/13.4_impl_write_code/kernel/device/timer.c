@@ -26,7 +26,7 @@ static void frequency_set(uint8_t counter_port, uint8_t counter_no, uint8_t rwl,
 
 /* Timer interrupt handler */
 static void intr_timer_handler(void) {
-    TaskStruct *cur_thread = running_thread();
+    TaskStruct *cur_thread = current_thread();
 
     KERNEL_ASSERT(cur_thread->stack_magic == TASK_MAGIC); // Check for stack overflow
 

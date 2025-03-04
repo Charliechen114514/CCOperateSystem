@@ -13,7 +13,7 @@ list thread_all_list;
 
 extern void switch_to(TaskStruct *cur, TaskStruct *next);
 
-TaskStruct *running_thread(void)
+TaskStruct *current_thread(void)
 {
     uint32_t esp;
     asm volatile("mov %%esp, %0" : "=g"(esp));
@@ -28,7 +28,7 @@ static void kernel_thread(TaskFunction function, void *func_arg)
 
 static void make_main_thread(void)
 {
-    main_thread = running_thread();
+    main_thread = current_thread();
     init_thread(main_thread, "main", 31);
     KERNEL_ASSERT(!elem_find(&thread_all_list, &main_thread->all_list_tag));
     list_append(&thread_all_list, &main_thread->all_list_tag);
@@ -75,7 +75,7 @@ void schedule(void)
 {
     KERNEL_ASSERT(get_intr_status() == INTR_OFF);
 
-    TaskStruct *cur = running_thread(); // Get the current running thread
+    TaskStruct *cur = current_thread(); // Get the current running thread
     if (cur->status == TASK_RUNNING)
     { // If the current thread is still running
         KERNEL_ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));

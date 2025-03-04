@@ -128,7 +128,7 @@ static bool init_adopt_a_child(list_elem *pelem, int32_t pid)
  * pointed by status. Return child process pid on success, -1 on failure */
 pid_t sys_wait(int32_t *status)
 {
-    TaskStruct *parent_thread = running_thread();
+    TaskStruct *parent_thread = current_thread();
 
     while (1)
     {
@@ -174,7 +174,7 @@ pid_t sys_wait(int32_t *status)
 /* Used by the child process to terminate itself */
 void sys_exit(int32_t status)
 {
-    TaskStruct *child_thread = running_thread();
+    TaskStruct *child_thread = current_thread();
     child_thread->exit_status = status;
     if (child_thread->parent_pid == -1)
     {

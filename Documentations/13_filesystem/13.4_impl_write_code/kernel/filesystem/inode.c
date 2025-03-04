@@ -93,7 +93,7 @@ Inode* inode_open(DiskPartition* part, uint32_t inode_no) {
  
     /* To ensure that the inode created by sys_malloc is shared by all tasks,
      * it needs to be placed in kernel space, so temporarily set cur_pbc->pg_dir to NULL */
-    TaskStruct* cur = running_thread();
+    TaskStruct* cur = current_thread();
     uint32_t* cur_pagedir_bak = cur->pg_dir;
     cur->pg_dir = NULL;
     /* After these three lines of code, the following memory allocation will be in kernel space */
@@ -130,7 +130,7 @@ Inode* inode_open(DiskPartition* part, uint32_t inode_no) {
  
     /* The inode was allocated in kernel space via sys_malloc when opened,
        so free the inode's memory in kernel space */
-       TaskStruct* cur = running_thread();
+       TaskStruct* cur = current_thread();
        uint32_t* cur_pagedir_bak = cur->pg_dir;
        cur->pg_dir = NULL;
        sys_free(inode);		         // Free the inode's memory

@@ -16,7 +16,7 @@ extern void intr_exit(void);
 /* Build the initial context for a user process */
 void start_process(void *filename_) {
     void *function = filename_; // The entry point of the user process
-    TaskStruct *cur = running_thread();
+    TaskStruct *cur = current_thread();
     cur->self_kstack +=
         sizeof(ThreadStack); // Move the stack pointer to the correct location
     Interrupt_Stack *proc_stack =

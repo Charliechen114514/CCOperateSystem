@@ -22,16 +22,16 @@ void sema_down(Semaphore *psema) {
     /* Disable interrupts to ensure atomic operation */
     Interrupt_Status old_status = set_intr_status(INTR_OFF);
     while (psema->value == 0) { // If value is 0, it means the semaphore is held by someone else
-        KERNEL_ASSERT(!elem_find(&psema->waiters, &running_thread()->general_tag));
+        KERNEL_ASSERT(!elem_find(&psema->waiters, &current_thread()->general_tag));
         /* The current thread should not already be in the semaphore's waiters
          * list */
-        if (elem_find(&psema->waiters, &running_thread()->general_tag)) {
+        if (elem_find(&psema->waiters, &current_thread()->general_tag)) {
             KERNEL_PANIC_SPIN(
                 "sema_down: thread blocked has been in waiters_list\n");
         }
         /* If semaphore's value is 0, the current thread adds itself to the
          * waiters list and blocks itself */
-        list_append(&psema->waiters, &running_thread()->general_tag);
+        list_append(&psema->waiters, &current_thread()->general_tag);
         thread_block(TASK_BLOCKED); // Block the thread until it is awakened
     }
     /* If value is 1 or the thread is awakened, proceed with acquiring the lock
@@ -63,10 +63,10 @@ void sema_up(Semaphore *psema) {
 void lock_acquire(CCLocker *plock) {
     /* Exclude the case where the current thread already holds the lock but
      * hasn't released it */
-    if (plock->holder != running_thread()) {
+    if (plock->holder != current_thread()) {
         sema_down(
             &plock->semaphore); // Perform P operation on semaphore (atomic)
-        plock->holder = running_thread();
+        plock->holder = current_thread();
         KERNEL_ASSERT(plock->holder_repeat_nr == 0);
         plock->holder_repeat_nr = 1;
     } else {
@@ -77,7 +77,7 @@ void lock_acquire(CCLocker *plock) {
 
 /* Release lock plock */
 void lock_release(CCLocker *plock) {
-    KERNEL_ASSERT(plock->holder == running_thread());
+    KERNEL_ASSERT(plock->holder == current_thread());
     if (plock->holder_repeat_nr > 1) {
         plock->holder_repeat_nr--; // Decrease repeat count if the thread holds
                                    // the lock multiple times

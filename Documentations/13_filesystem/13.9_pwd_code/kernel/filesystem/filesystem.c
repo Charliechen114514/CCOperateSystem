@@ -457,7 +457,7 @@ int32_t sys_open(const char *pathname, uint8_t flags)
 /* Convert the file descriptor to the global file table index */
 uint32_t fd_local2global(uint32_t local_fd)
 {
-    TaskStruct *cur = running_thread();
+    TaskStruct *cur = current_thread();
     int32_t global_fd = cur->fd_table[local_fd];
     KERNEL_ASSERT(global_fd >= 0 && global_fd < MAX_FILE_OPEN);
     return (uint32_t)global_fd;
@@ -472,7 +472,7 @@ int32_t sys_close(int32_t fd)
     {
         uint32_t _fd = fd_local2global(fd);
         ret = file_close(&file_table[_fd]);
-        running_thread()->fd_table[fd] = -1;
+        current_thread()->fd_table[fd] = -1;
     }
     return ret;
 }
@@ -1050,7 +1050,7 @@ char *sys_getcwd(char *buf, uint32_t size)
     {
         return NULL;
     }
-    TaskStruct *cur_thread = running_thread();
+    TaskStruct *cur_thread = current_thread();
     int32_t parent_inode_nr = 0;
     int32_t child_inode_nr = cur_thread->cwd_inode_nr;
     KERNEL_ASSERT(child_inode_nr >= 0 &&
@@ -1112,7 +1112,7 @@ int32_t sys_chdir(const char *path)
     {
         if (searched_record.file_type == FT_DIRECTORY)
         {
-            running_thread()->cwd_inode_nr = inode_no;
+            current_thread()->cwd_inode_nr = inode_no;
             ret = 0;
         }
         else

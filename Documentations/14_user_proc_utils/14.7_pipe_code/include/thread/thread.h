@@ -182,7 +182,7 @@ TaskStruct *thread_start(char *name, int prio, TaskFunction function,
  *
  * @return Pointer to the currently running TaskStruct.
  */
-TaskStruct *running_thread(void);
+TaskStruct *current_thread(void);
 
 /**
  * @brief Schedule the next thread.

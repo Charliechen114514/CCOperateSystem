@@ -53,7 +53,7 @@ static void *vaddr_get(PoolFlag pf, uint32_t pg_cnt) {
         }
         vaddr_start = kernel_vaddr.vaddr_start + bit_idx_start * PG_SIZE;
     } else { // User memory pool
-        TaskStruct *cur = running_thread();
+        TaskStruct *cur = current_thread();
         bit_idx_start = bitmap_scan(&cur->userprog_vaddr.vaddr_bitmap, pg_cnt);
         if (bit_idx_start == -1) {
             return NULL;
@@ -201,7 +201,7 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
     lock_acquire(&mem_pool->lock);
 
     /* First, set the corresponding bit in the virtual address bitmap */
-    TaskStruct *cur = running_thread();
+    TaskStruct *cur = current_thread();
     int32_t bit_idx = -1;
 
     /* If the current thread is a user process requesting user memory, modify
@@ -264,7 +264,7 @@ void *sys_malloc(uint32_t size) {
     MemoryPool *mem_pool;
     uint32_t pool_size;
     MemoryBlockDescriptor *descs;
-    TaskStruct *cur_thread = running_thread();
+    TaskStruct *cur_thread = current_thread();
 
     /* Determine which memory pool to use */
     if (cur_thread->pg_dir == NULL) { // Kernel thread
@@ -398,7 +398,7 @@ static void vaddr_remove(PoolFlag pf, void *_vaddr, uint32_t pg_cnt) {
             bitmap_set(&kernel_vaddr.vaddr_bitmap, bit_idx_start + cnt++, 0);
         }
     } else { // User virtual memory pool
-        TaskStruct *cur_thread = running_thread();
+        TaskStruct *cur_thread = current_thread();
         bit_idx_start =
             (vaddr - cur_thread->userprog_vaddr.vaddr_start) / PG_SIZE;
         while (cnt < pg_cnt) {
@@ -478,7 +478,7 @@ void sys_free(void *ptr) {
         MemoryPool *mem_pool;
 
         /* Determine whether it's a thread or a process */
-        if (running_thread()->pg_dir == NULL) {
+        if (current_thread()->pg_dir == NULL) {
             KERNEL_ASSERT((uint32_t)ptr >= KERNEL_HEAP_START);
             PF = PF_KERNEL;
             mem_pool = &kernel_pool;

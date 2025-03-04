@@ -46,7 +46,7 @@ static void idle(void *arg)
 }
 
 /* Get the current thread's PCB pointer */
-TaskStruct *running_thread()
+TaskStruct *current_thread()
 {
     uint32_t esp;
     asm("mov %%esp, %0" : "=g"(esp));
@@ -173,7 +173,7 @@ static void make_main_thread(void)
 {
     /* The main thread's PCB has already been allocated at 0xc009e000, no need
      * to allocate a new page */
-    main_thread = running_thread();
+    main_thread = current_thread();
     init_thread(main_thread, "main", 31); // Initialize the main thread
 
     /* The main thread is already running, add it to the all threads list */
@@ -186,7 +186,7 @@ void schedule()
 {
     KERNEL_ASSERT(get_intr_status() == INTR_OFF);
 
-    TaskStruct *cur = running_thread(); // Get the current running thread
+    TaskStruct *cur = current_thread(); // Get the current running thread
     if (cur->status == TASK_RUNNING)
     { // If the current thread is still running
         KERNEL_ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
@@ -223,7 +223,7 @@ void thread_block(TaskStatus stat)
     KERNEL_ASSERT(((stat == TASK_BLOCKED) || (stat == TASK_WAITING) ||
                    (stat == TASK_HANGING)));
     Interrupt_Status old_status = set_intr_status(INTR_OFF);
-    TaskStruct *cur_thread = running_thread();
+    TaskStruct *cur_thread = current_thread();
     cur_thread->status = stat;   // Set the current thread's status
     schedule();                  // Schedule another thread
     set_intr_status(old_status); // Restore interrupt state
@@ -253,7 +253,7 @@ void thread_unblock(TaskStruct *pthread)
 /* Yield the CPU voluntarily to another thread */
 void thread_yield(void)
 {
-    TaskStruct *cur = running_thread();
+    TaskStruct *cur = current_thread();
     Interrupt_Status old_status = set_intr_status(INTR_OFF);
     KERNEL_ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
     list_append(&thread_ready_list,

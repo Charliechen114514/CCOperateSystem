@@ -126,7 +126,7 @@ typedef struct __cctaskstruct
  *
  * @return Pointer to the currently running TaskStruct.
  */
-TaskStruct *running_thread(void);
+TaskStruct *current_thread(void);
 
 void create_thread(TaskStruct *pthread, TaskFunction function, void *func_arg);
 void init_thread(TaskStruct *pthread, char *name, int priority);

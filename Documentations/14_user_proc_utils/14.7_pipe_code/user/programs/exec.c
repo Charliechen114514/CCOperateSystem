@@ -172,7 +172,7 @@ int32_t sys_execv(const char *path, const char *argv[]) {
         return -1;
     }
 
-    TaskStruct *cur = running_thread(); // Get the current running thread (process)
+    TaskStruct *cur = current_thread(); // Get the current running thread (process)
     k_memcpy(cur->name, path, TASK_NAME_ARRAY_SZ); // Update the process name
 
     // Update the stack with the arguments

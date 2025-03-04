@@ -29,7 +29,7 @@ extern void switch_to(TaskStruct *cur, TaskStruct *next);
  *
  * @return Pointer to the currently running TaskStruct.
  */
-TaskStruct *running_thread(void)
+TaskStruct *current_thread(void)
 {
     uint32_t esp;
     asm volatile("mov %%esp, %0" : "=g"(esp));
@@ -68,7 +68,7 @@ static void kernel_thread(TaskFunction function, void *func_arg)
  */
 static void make_main_thread(void)
 {
-    main_thread = running_thread(); // Retrieve the current running thread
+    main_thread = current_thread(); // Retrieve the current running thread
     init_thread(main_thread, "main", 31); // Initialize the main thread with priority 31
     KERNEL_ASSERT(!elem_find(&thread_all_list, &main_thread->all_list_tag)); // Ensure it is not already in the list
     list_append(&thread_all_list, &main_thread->all_list_tag); // Add the main thread to the thread list
@@ -141,7 +141,7 @@ void schedule(void)
 {
     KERNEL_ASSERT(get_intr_status() == INTR_OFF); // Ensure interrupts are disabled
 
-    TaskStruct *cur = running_thread(); // Get the current running thread
+    TaskStruct *cur = current_thread(); // Get the current running thread
     if (cur->status == TASK_RUNNING)
     {
         KERNEL_ASSERT(!elem_find(&thread_ready_list, &cur->general_tag)); // Ensure it's not already in the list
@@ -171,7 +171,7 @@ void thread_block(TaskStatus stat) {
     Interrupt_Status old_status = set_intr_status(INTR_OFF);
     
     // Get the current running thread
-    TaskStruct *cur_thread = running_thread();
+    TaskStruct *cur_thread = current_thread();
     
     // Set the current thread's status to the given stat
     cur_thread->status = stat;  

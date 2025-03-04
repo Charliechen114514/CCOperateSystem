@@ -44,7 +44,7 @@ int32_t get_free_slot_in_global(void)
  * successful, or -1 if all local file descriptor slots are in use. */
 int32_t pcb_fd_install(int32_t global_fd_idx)
 {
-    TaskStruct *cur = running_thread(); // Get the current running thread.
+    TaskStruct *cur = current_thread(); // Get the current running thread.
     uint8_t local_fd_idx =
         3; // Start from index 3, skipping stdin, stdout, stderr.
     while (local_fd_idx < MAX_FILES_OPEN_PER_PROC)

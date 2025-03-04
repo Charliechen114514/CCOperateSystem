@@ -21,7 +21,7 @@ syscall syscall_table[SYSCALL_SUM_NR]; // System call table to hold the addresse
 
 /* Return the pid of the current task */
 uint32_t sys_getpid(void) {
-    return running_thread()->pid; // Retrieve the PID of the running thread
+    return current_thread()->pid; // Retrieve the PID of the running thread
 }
 
 

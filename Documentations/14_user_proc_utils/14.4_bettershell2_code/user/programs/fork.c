@@ -190,7 +190,7 @@ static int32_t copy_process(TaskStruct *child_thread,
 
 /* Fork the child process. Kernel threads cannot directly call this function */
 pid_t sys_fork(void) {
-    TaskStruct *parent_thread = running_thread();
+    TaskStruct *parent_thread = current_thread();
     TaskStruct *child_thread =
         get_kernel_pages(1); // Create PCB for the child process
     if (child_thread == NULL) {

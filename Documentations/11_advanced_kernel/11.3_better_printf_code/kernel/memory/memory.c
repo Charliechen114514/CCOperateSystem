@@ -47,7 +47,7 @@ static void *vaddr_get(const PoolFlag pf, const uint32_t pg_cnt)
         }break;// Exit the case block
         case PF_USER: // If the pool is the user memory pool
         {
-            TaskStruct *cur = running_thread();
+            TaskStruct *cur = current_thread();
             bit_idx_start = bitmap_scan(&cur->userprog_vaddr.virtual_mem_bitmap, pg_cnt);
             if (bit_idx_start == -1)
             {
@@ -214,7 +214,7 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
     lock_acquire(&mem_pool->lock);
 
     /* First, set the corresponding bit in the virtual address bitmap */
-    TaskStruct *cur = running_thread();
+    TaskStruct *cur = current_thread();
     int32_t bit_idx = -1;
 
     /* If the current thread is a user process requesting user memory, modify

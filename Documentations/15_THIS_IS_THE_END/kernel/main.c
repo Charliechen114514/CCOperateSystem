@@ -9,7 +9,7 @@ void init(void);
 
 int main(void) {
     init_all();                          // Initialize the entire system
-    thread_exit(running_thread(), true); // Exit the current thread
+    thread_exit(current_thread(), true); // Exit the current thread
     return 0;
 }
 
