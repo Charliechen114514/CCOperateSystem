@@ -5,7 +5,7 @@
 #include "include/library/types.h"
 
 /* Initialize semaphore */
-void sema_init(Semaphore *psema, uint8_t value) {
+void sema_init(CCSemaphore *psema, uint8_t value) {
     psema->value = value;       // Set the initial value of the semaphore
     list_init(&psema->waiters); // Initialize the semaphore's waiting list
 }
@@ -17,8 +17,8 @@ void lock_init(CCLocker *plock) {
     sema_init(&plock->semaphore, 1); // Initialize the semaphore with value 1
 }
 
-/* Semaphore down operation (P operation) */
-void sema_down(Semaphore *psema) {
+/* CCSemaphore down operation (P operation) */
+void sema_down(CCSemaphore *psema) {
     /* Disable interrupts to ensure atomic operation */
     Interrupt_Status old_status = set_intr_status(INTR_OFF);
     while (psema->value == 0) { // If value is 0, it means the semaphore is held by someone else
@@ -42,8 +42,8 @@ void sema_down(Semaphore *psema) {
     set_intr_status(old_status);
 }
 
-/* Semaphore up operation (V operation) */
-void sema_up(Semaphore *psema) {
+/* CCSemaphore up operation (V operation) */
+void sema_up(CCSemaphore *psema) {
     /* Disable interrupts to ensure atomic operation */
     Interrupt_Status old_status = set_intr_status(INTR_OFF);
     KERNEL_ASSERT(psema->value == 0);
