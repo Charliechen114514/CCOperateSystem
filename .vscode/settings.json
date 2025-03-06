@@ -5,6 +5,7 @@
         "timer_settings.h": "c",
         "kernel_assert.h": "c",
         "bitmap.h": "c",
-        "thread.h": "c"
+        "thread.h": "c",
+        "selectors.h": "c"
     }
 }

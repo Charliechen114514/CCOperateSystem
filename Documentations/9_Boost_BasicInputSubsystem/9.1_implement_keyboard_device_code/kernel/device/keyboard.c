@@ -9,8 +9,11 @@ static void keyboard_intr_handler(void)
 {
     // hey don't use puts here, gs is not switched, else we will visit
     // wrong place
-    uint8_t scancode = inb(KEYBOARD_BUF_PORT);
+    // __ccos_putchar('C');
+    uint8_t scancode = 
+        inb(KEYBOARD_BUF_PORT);
     __ccos_display_int(scancode);
+    __ccos_putchar(' ');
     return;
 }
 
