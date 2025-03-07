@@ -55,7 +55,8 @@ static void keyboard_intr_handler(void)
 
     // Handle make codes for defined keys
     if ((scancode > 0x00 && scancode < 0x3b) || (scancode == ALT_R_MAKE) ||
-        (scancode == CTRL_R_MAKE)) {
+        (scancode == CTRL_R_MAKE)) 
+    {
 
         bool shift =
             false; // Used to index characters from keymap based on Shift status
@@ -82,9 +83,8 @@ static void keyboard_intr_handler(void)
         }
 
         // Mask the high byte for extended scancodes
-        uint8_t index = (scancode &= 0x00ff);
-        char cur_char =
-            keymap[index][shift]; // Retrieve the character from the keymap
+        uint8_t index = (scancode&= 0x00ff);
+        char cur_char = keymap[index][shift]; // Retrieve the character from the keymap
 
         // Add the character to the buffer if it is not null
         if (cur_char) {

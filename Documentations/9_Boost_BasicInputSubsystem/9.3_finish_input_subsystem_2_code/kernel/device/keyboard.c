@@ -85,9 +85,9 @@ static void keyboard_intr_handler(void)
         }
 
         // Mask the high byte for extended scancodes
-        uint8_t index = (scancode &= 0x00ff);
+        scancode &= 0x00ff;
         char cur_char =
-            keymap[index][shift]; // Retrieve the character from the keymap
+            keymap[scancode][shift]; // Retrieve the character from the keymap
 
         // Add the character to the buffer if it is not null
         if (cur_char) {
