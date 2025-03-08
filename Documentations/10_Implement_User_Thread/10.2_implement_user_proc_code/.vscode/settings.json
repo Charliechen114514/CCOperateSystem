@@ -11,6 +11,7 @@
         "interrupt.h": "c",
         "kernel_assert.h": "c",
         "thread_settings.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "string.h": "c"
     }
 }

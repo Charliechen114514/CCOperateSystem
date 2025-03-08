@@ -26,7 +26,7 @@ void print_prompt(void)
 /* Reads up to 'count' bytes from the keyboard buffer into 'buf' */
 static void readline(char *buf, int32_t count)
 {
-    user_assert(buf != NULL && count > 0);
+    user_assert(buf && count > 0);
     char *pos = buf;
 
     while (read(stdin_no, pos, 1) != -1 &&
@@ -80,7 +80,7 @@ static void readline(char *buf, int32_t count)
  * storing the pointers to words in 'argv' */
 static int32_t cmd_parse(char *cmd_str, char **argv, char token)
 {
-    user_assert(cmd_str != NULL);
+    user_assert(cmd_str);
     int32_t arg_idx = 0;
     while (arg_idx < MAX_ARG_NR)
     {

@@ -144,7 +144,7 @@ void *malloc_page(PoolFlag pf, uint32_t pg_cnt) {
     ***************************************************************/
 
     void *vaddr_start = vaddr_get(pf, pg_cnt);
-    if (vaddr_start == NULL) {
+    if (!vaddr_start) {
         return NULL;
     }
     uint32_t vaddr = (uint32_t)vaddr_start, cnt = pg_cnt;
@@ -157,7 +157,7 @@ void *malloc_page(PoolFlag pf, uint32_t pg_cnt) {
 
         /* If allocation fails, rollback all previously allocated virtual and
          * physical pages, to be handled later during memory recovery */
-        if (page_phyaddr == NULL) {
+        if (!page_phyaddr) {
             return NULL;
         }
 
@@ -172,7 +172,7 @@ void *malloc_page(PoolFlag pf, uint32_t pg_cnt) {
 void *get_kernel_pages(uint32_t pg_cnt) {
     lock_acquire(&kernel_pool.lock);
     void *vaddr = malloc_page(PF_KERNEL, pg_cnt);
-    if (vaddr != NULL) { // If the allocated address is not NULL, clear the
+    if (vaddr) { // If the allocated address is not NULL, clear the
                          // pages before returning
         k_memset(vaddr, 0, pg_cnt * PG_SIZE);
     }
@@ -185,7 +185,7 @@ void *get_kernel_pages(uint32_t pg_cnt) {
 void *get_user_pages(uint32_t pg_cnt) {
     lock_acquire(&user_pool.lock);
     void *vaddr = malloc_page(PF_USER, pg_cnt);
-    if (vaddr != NULL) { // If the allocated address is not NULL, clear the
+    if (vaddr) { // If the allocated address is not NULL, clear the
                          // pages before returning
         k_memset(vaddr, 0, pg_cnt * PG_SIZE);
     }
@@ -206,12 +206,12 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
 
     /* If the current thread is a user process requesting user memory, modify
      * the user process's virtual address bitmap */
-    if (cur->pg_dir != NULL && pf == PF_USER) {
+    if (cur->pg_dir && pf == PF_USER) {
         bit_idx = (vaddr - cur->userprog_vaddr.vaddr_start) / PG_SIZE;
         KERNEL_ASSERT(bit_idx >= 0);
         bitmap_set(&cur->userprog_vaddr.vaddr_bitmap, bit_idx, 1);
 
-    } else if (cur->pg_dir == NULL && pf == PF_KERNEL) {
+    } else if (!(cur->pg_dir) && pf == PF_KERNEL) {
         /* If a kernel thread is requesting kernel memory, modify kernel_vaddr.
          */
         bit_idx = (vaddr - kernel_vaddr.vaddr_start) / PG_SIZE;
@@ -223,7 +223,7 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
     }
 
     void *page_phyaddr = palloc(mem_pool);
-    if (page_phyaddr == NULL) {
+    if (!page_phyaddr) {
         lock_release(&mem_pool->lock);
         return NULL;
     }
@@ -238,7 +238,7 @@ void *get_a_page_without_opvaddrbitmap(PoolFlag pf, uint32_t vaddr) {
     MemoryPool *mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
     lock_acquire(&mem_pool->lock);
     void *page_phyaddr = palloc(mem_pool);
-    if (page_phyaddr == NULL) {
+    if (!page_phyaddr) {
         lock_release(&mem_pool->lock);
         return NULL;
     }
@@ -267,7 +267,7 @@ void *sys_malloc(uint32_t size) {
     TaskStruct *cur_thread = current_thread();
 
     /* Determine which memory pool to use */
-    if (cur_thread->pg_dir == NULL) { // Kernel thread
+    if (!cur_thread->pg_dir) { // Kernel thread
         PF = PF_KERNEL;
         pool_size = kernel_pool.pool_size;
         mem_pool = &kernel_pool;
@@ -295,7 +295,7 @@ void *sys_malloc(uint32_t size) {
 
         a = malloc_page(PF, page_cnt);
 
-        if (a != NULL) {
+        if (a) {
             k_memset(a, 0, page_cnt * PG_SIZE); // Clear the allocated memory
 
             /* For large allocations, set desc to NULL, cnt to the number of
@@ -327,7 +327,7 @@ void *sys_malloc(uint32_t size) {
          */
         if (list_empty(&descs[desc_idx].free_list)) {
             a = malloc_page(PF, 1); // Allocate 1 page frame for the arena
-            if (a == NULL) {
+            if (!a) {
                 lock_release(&mem_pool->lock);
                 return NULL;
             }
@@ -472,13 +472,13 @@ void mfree_page(PoolFlag pf, void *_vaddr, uint32_t pg_cnt) {
 
 /* Free the memory pointed to by ptr */
 void sys_free(void *ptr) {
-    KERNEL_ASSERT(ptr != NULL);
-    if (ptr != NULL) {
+    KERNEL_ASSERT(ptr);
+    if (ptr) {
         PoolFlag PF;
         MemoryPool *mem_pool;
 
         /* Determine whether it's a thread or a process */
-        if (current_thread()->pg_dir == NULL) {
+        if (!current_thread()->pg_dir) {
             KERNEL_ASSERT((uint32_t)ptr >= KERNEL_HEAP_START);
             PF = PF_KERNEL;
             mem_pool = &kernel_pool;
@@ -492,7 +492,7 @@ void sys_free(void *ptr) {
         Arena *a = block2arena(
             b); // Convert the memory block to an arena to get metadata
         KERNEL_ASSERT(a->large == 0 || a->large == 1);
-        if (a->desc == NULL &&
+        if (!(a->desc) &&
             a->large == true) { // Memory larger than 1024 bytes
             mfree_page(PF, a, a->cnt);
         } else { // Memory block smaller than or equal to 1024 bytes

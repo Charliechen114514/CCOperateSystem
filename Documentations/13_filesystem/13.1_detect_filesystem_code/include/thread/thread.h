@@ -118,7 +118,7 @@ typedef struct {
      */
     list_elem all_list_tag;
 
-    uint32_t *pgdir; // Virtual address of process page directory
+    uint32_t *pg_dir; // Virtual address of process page directory
     VirtualMemoryHandle userprog_vaddr; // User process virtual memory space
     MemoryBlockDescriptor
         u_block_desc[DESC_CNT]; // User process memory block descriptors

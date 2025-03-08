@@ -15,8 +15,8 @@ int prog_a_pid = 0, prog_b_pid = 0;
 int main(void)
 {
     init_all();
-    process_execute(u_prog_a, "user_prog_a");
-    process_execute(u_prog_b, "user_prog_b");
+    create_process(u_prog_a, "user_prog_a");
+    create_process(u_prog_b, "user_prog_b");
     interrupt_enabled();
     console_ccos_puts("main_pid: 0x");
     console__ccos_display_int(sys_getpid());

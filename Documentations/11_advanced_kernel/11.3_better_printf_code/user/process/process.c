@@ -14,7 +14,7 @@ extern void intr_exit(void);
 
 
 /* Build the initial context for a user process */
-void start_process(void *filename_) {
+static void start_process(void *filename_) {
     void *function = filename_; // The entry point of the user process
     TaskStruct *cur = current_thread();
     cur->self_kstack += sizeof(ThreadStack); // Move the stack pointer to the correct location
@@ -63,8 +63,8 @@ void page_dir_activate(TaskStruct *p_thread) {
 
 /* Activate the page table for a process or thread and update the TSS's esp0 for
  * privilege level 0 stack */
-void process_activate(TaskStruct *p_thread) {
-    KERNEL_ASSERT(p_thread != NULL);
+void activate_process_settings(TaskStruct *p_thread) {
+    KERNEL_ASSERT(p_thread);
     /* Activate the page table for the process or thread */
     page_dir_activate(p_thread);
 
@@ -112,7 +112,7 @@ uint32_t *create_page_dir(void) {
 }
 
 /* Create the user process's virtual address bitmap */
-void create_user_vaddr_bitmap(TaskStruct *user_prog) {
+static void create_user_vaddr_bitmap(TaskStruct *user_prog) {
     user_prog->userprog_vaddr.vaddr_start = USER_VADDR_START;
     uint32_t bitmap_pg_cnt =
         ROUNDUP((KERNEL_V_START - USER_VADDR_START) / PG_SIZE / 8, PG_SIZE);
@@ -124,7 +124,7 @@ void create_user_vaddr_bitmap(TaskStruct *user_prog) {
 }
 
 /* Execute a user process */
-void process_execute(void *filename, char *name) {
+void create_process(void *filename, char *name) {
     /* Allocate memory for the process control block (PCB) in the kernel memory
      * pool */
     TaskStruct *thread = get_kernel_pages(PCB_SZ_PG_CNT);

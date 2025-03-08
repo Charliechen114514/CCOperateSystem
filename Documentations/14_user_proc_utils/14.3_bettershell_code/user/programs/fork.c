@@ -39,7 +39,7 @@ static int32_t copy_pcb_vaddrbitmap_stack0(TaskStruct *child_thread,
         ROUNDUP((0xc0000000 - USER_VADDR_START) / PG_SIZE / 8, PG_SIZE);
     void *vaddr_btmp =
         get_kernel_pages(bitmap_pg_cnt); // Allocate kernel pages for the bitmap
-    if (vaddr_btmp == NULL)
+    if (!vaddr_btmp)
         return -1; // Return error if memory allocation fails
 
     /* Copy the virtual address bitmap to the child process's allocated memory
@@ -159,7 +159,7 @@ static int32_t copy_process(TaskStruct *child_thread,
     /* Kernel buffer to temporarily hold data from parent process's user space
      * to be copied to the child process */
     void *buf_page = get_kernel_pages(1);
-    if (buf_page == NULL) {
+    if (!buf_page) {
         return -1;
     }
 
@@ -172,7 +172,7 @@ static int32_t copy_process(TaskStruct *child_thread,
     /* b Create a page table for the child process, which only includes kernel
      * space */
     child_thread->pg_dir = create_page_dir();
-    if (child_thread->pg_dir == NULL) {
+    if (!(child_thread->pg_dir)) {
         return -1;
     }
 
@@ -193,10 +193,10 @@ pid_t sys_fork(void) {
     TaskStruct *parent_thread = current_thread();
     TaskStruct *child_thread =
         get_kernel_pages(1); // Create PCB for the child process
-    if (child_thread == NULL) {
+    if (!child_thread) {
         return -1; // Return error if memory allocation fails
     }
-    KERNEL_ASSERT(INTR_OFF == get_intr_status() && parent_thread->pg_dir != NULL);
+    KERNEL_ASSERT(INTR_OFF == get_intr_status() && parent_thread->pg_dir);
 
     /* Copy resources from the parent process to the child process */
     if (copy_process(child_thread, parent_thread) == -1) {

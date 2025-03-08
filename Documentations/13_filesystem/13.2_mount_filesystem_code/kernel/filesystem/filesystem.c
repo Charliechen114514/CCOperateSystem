@@ -48,7 +48,7 @@ static bool mount_partition(list_elem *pelem, int arg) {
         /********** Load the block bitmap from disk into memory **********/
         // Allocate memory for the block bitmap
         cur_part->block_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->block_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->block_bitmap.bits == NULL) {
+        if (!(cur_part->block_bitmap.bits)) {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
         // Set the length of the block bitmap in bytes
@@ -61,7 +61,7 @@ static bool mount_partition(list_elem *pelem, int arg) {
         /********** Load the inode bitmap from disk into memory **********/
         // Allocate memory for the inode bitmap
         cur_part->inode_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->inode_bitmap.bits == NULL) {
+        if (!(cur_part->inode_bitmap.bits)) {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
         // Set the length of the inode bitmap in bytes

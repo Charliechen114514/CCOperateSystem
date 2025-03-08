@@ -26,7 +26,7 @@ void print_prompt(void)
 /* Reads up to 'count' bytes from the keyboard buffer into 'buf' */
 static void readline(char *buf, int32_t count)
 {
-    user_assert(buf != NULL && count > 0);
+    user_assert(buf && count > 0);
     char *pos = buf;
 
     while (read(stdin_no, pos, 1) != -1 &&

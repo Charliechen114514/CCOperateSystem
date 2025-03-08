@@ -1,7 +1,7 @@
 #include "include/user/program/process.h"
 #include "include/device/console_tty.h"
 #include "include/kernel/interrupt.h"
-#include "include/kernel/kernel_table_property.h"
+#include "include/property/selectors.h"
 #include "include/thread/thread.h"
 #include "include/library/kernel_assert.h"
 #include "include/library/list.h"
@@ -14,7 +14,7 @@
 extern void intr_exit(void);
 
 /* Build the initial context for a user process */
-void start_process(void *filename_) {
+static void start_process(void *filename_) {
     void *function = filename_; // The entry point of the user process
     TaskStruct *cur = current_thread();
     cur->self_kstack +=
@@ -66,7 +66,7 @@ void page_dir_activate(TaskStruct *p_thread) {
 
 /* Activate the page table for a process or thread and update the TSS's esp0 for
  * privilege level 0 stack */
-void process_activate(TaskStruct *p_thread) {
+void activate_process_settings(TaskStruct *p_thread) {
     KERNEL_ASSERT(p_thread);
     /* Activate the page table for the process or thread */
     page_dir_activate(p_thread);
@@ -89,7 +89,7 @@ uint32_t *create_page_dir(void) {
     /* The user process's page table cannot be directly accessed, so we allocate
      * memory in the kernel space */
     uint32_t *page_dir_vaddr = get_kernel_pages(1);
-    if (page_dir_vaddr == NULL) {
+    if (!page_dir_vaddr) {
         console_ccos_puts("create_page_dir: get_kernel_page failed!");
         return NULL;
     }
@@ -115,7 +115,7 @@ uint32_t *create_page_dir(void) {
 }
 
 /* Create the user process's virtual address bitmap */
-void create_user_vaddr_bitmap(TaskStruct *user_prog) {
+static void create_user_vaddr_bitmap(TaskStruct *user_prog) {
     user_prog->userprog_vaddr.vaddr_start = USER_VADDR_START;
     uint32_t bitmap_pg_cnt =
         ROUNDUP((0xc0000000 - USER_VADDR_START) / PG_SIZE / 8, PG_SIZE);
@@ -127,7 +127,7 @@ void create_user_vaddr_bitmap(TaskStruct *user_prog) {
 }
 
 /* Execute a user process */
-void process_execute(void *filename, char *name) {
+void create_process(void *filename, char *name) {
     /* Allocate memory for the process control block (PCB) in the kernel memory
      * pool */
     TaskStruct *thread = get_kernel_pages(1);

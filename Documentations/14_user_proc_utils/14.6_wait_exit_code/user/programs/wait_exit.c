@@ -134,7 +134,7 @@ pid_t sys_wait(int32_t *status)
         list_elem *child_elem = list_traversal(
             &thread_all_list, find_hanging_child, parent_thread->pid);
         /* If there is a hanging child process */
-        if (child_elem != NULL)
+        if (child_elem)
         {
             TaskStruct *child_thread =
                 elem2entry(TaskStruct, all_list_tag, child_elem);
@@ -156,7 +156,7 @@ pid_t sys_wait(int32_t *status)
         /* Check if there are any child processes */
         child_elem =
             list_traversal(&thread_all_list, find_child, parent_thread->pid);
-        if (child_elem == NULL)
+        if (!child_elem)
         { // If no child processes, return -1
             return -1;
         }

@@ -102,7 +102,7 @@ void init_thread(TaskStruct *pthread, char *name, int prio) {
     pthread->priority = prio;
     pthread->ticks = prio; // Set the number of ticks based on priority
     pthread->elapsed_ticks = 0;
-    pthread->pgdir = NULL;
+    pthread->pg_dir = NULL;
 
     pthread->stack_magic =
         TASK_MAGIC; // Custom magic number for stack validation
@@ -172,7 +172,7 @@ void schedule() {
     next->status = TASK_RUNNING;
 
     /* Activate the process (e.g., set page tables, etc.) */
-    process_activate(next);
+    activate_process_settings(next);
 
     switch_to(cur, next); // Switch to the next thread
 }
@@ -232,8 +232,8 @@ void thread_exit(TaskStruct *thread_over, bool need_schedule) {
     }
 
     /* If the thread has a page table, free it */
-    if (thread_over->pgdir) {
-        mfree_page(PF_KERNEL, thread_over->pgdir, 1);
+    if (thread_over->pg_dir) {
+        mfree_page(PF_KERNEL, thread_over->pg_dir, 1);
     }
 
     /* Remove the thread from the all threads list */
@@ -265,7 +265,7 @@ static bool pid_check(list_elem *pelem, int32_t pid) {
 /* Find a thread's PCB by PID. Return NULL if not found. */
 TaskStruct *pid2thread(int32_t pid) {
     list_elem *pelem = list_traversal(&thread_all_list, pid_check, pid);
-    if (pelem == NULL) {
+    if (!pelem ) {
         return NULL; // Return NULL if no thread is found with the specified PID
     }
     TaskStruct *thread = elem2entry(TaskStruct, all_list_tag, pelem);

@@ -20,7 +20,7 @@ int32_t sys_pipe(int32_t pipefd[2]) {
 
     /* Initialize the ring buffer */
     init_IOQueue((IOQueue *)file_table[global_fd].fd_inode);
-    if (file_table[global_fd].fd_inode == NULL) {
+    if (!(file_table[global_fd].fd_inode)) {
         return -1;
     }
 

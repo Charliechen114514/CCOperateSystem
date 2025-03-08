@@ -5,7 +5,7 @@
 /* Set 'size' number of bytes of memory starting at 'dst_' to the value 'value'
  */
 void k_memset(void *dst_, uint8_t value, uint32_t size) {
-    KERNEL_ASSERT(dst_ != NULL); // Assert that the destination is not NULL
+    KERNEL_ASSERT(dst_); // Assert that the destination is not NULL
     uint8_t *dst =
         (uint8_t *)dst_; // Cast to uint8_t pointer for byte-wise manipulation
     while (size-- > 0)   // Loop until all bytes are set
@@ -14,7 +14,7 @@ void k_memset(void *dst_, uint8_t value, uint32_t size) {
 
 /* Copy 'size' number of bytes from 'src_' to 'dst_' */
 void k_memcpy(void *dst_, const void *src_, uint32_t size) {
-    KERNEL_ASSERT(dst_ != NULL &&
+    KERNEL_ASSERT(dst_ &&
            src_ !=
                NULL);    // Assert that both source and destination are not NULL
     uint8_t *dst = dst_; // Cast destination to byte pointer
@@ -28,7 +28,7 @@ void k_memcpy(void *dst_, const void *src_, uint32_t size) {
 int k_memcmp(const void *a_, const void *b_, uint32_t size) {
     const char *a = a_; // Cast a_ to char pointer for byte-wise comparison
     const char *b = b_; // Cast b_ to char pointer
-    KERNEL_ASSERT(a != NULL || b != NULL); // Assert at least one is not NULL
+    KERNEL_ASSERT(a || b); // Assert at least one is not NULL
     while (size-- > 0) {
         if (*a != *b) {
             return *a > *b
@@ -43,7 +43,7 @@ int k_memcmp(const void *a_, const void *b_, uint32_t size) {
 
 /* Copy the string from 'src_' to 'dst_' */
 char *k_strcpy(char *dst_, const char *src_) {
-    KERNEL_ASSERT(dst_ != NULL &&
+    KERNEL_ASSERT(dst_ &&
            src_ !=
                NULL); // Assert that both source and destination are not NULL
     char *r = dst_;   // Save the starting address of the destination string
@@ -54,7 +54,7 @@ char *k_strcpy(char *dst_, const char *src_) {
 
 /* Return the length of the string */
 uint32_t k_strlen(const char *str) {
-    KERNEL_ASSERT(str != NULL); // Assert that the string is not NULL
+    KERNEL_ASSERT(str); // Assert that the string is not NULL
     const char *p = str;
     while (*p++)
         ;                 // Loop through the string until the null-terminator
@@ -64,7 +64,7 @@ uint32_t k_strlen(const char *str) {
 /* Compare two strings. Return 1 if 'a_' > 'b_', 0 if equal, -1 if 'a_' < 'b_'
  */
 int8_t k_strcmp(const char *a, const char *b) {
-    KERNEL_ASSERT(a != NULL && b != NULL); // Assert that both strings are not NULL
+    KERNEL_ASSERT(a && b); // Assert that both strings are not NULL
     while (*a != 0 && *a == *b) {   // Loop until a mismatch or end of string
         a++;
         b++;
@@ -75,7 +75,7 @@ int8_t k_strcmp(const char *a, const char *b) {
 /* Find the first occurrence of character 'ch' in the string 'str' and return
  * its address */
 char *k_strchr(const char *str, const uint8_t ch) {
-    KERNEL_ASSERT(str != NULL); // Assert that the string is not NULL
+    KERNEL_ASSERT(str); // Assert that the string is not NULL
     while (*str != 0) {  // Loop through the string until the null-terminator
         if (*str == ch) {
             return (char *)str; // Return the address of the found character
@@ -88,7 +88,7 @@ char *k_strchr(const char *str, const uint8_t ch) {
 /* Find the last occurrence of character 'ch' in the string 'str' and return its
  * address */
 char *k_strrchr(const char *str, const uint8_t ch) {
-    KERNEL_ASSERT(str != NULL); // Assert that the string is not NULL
+    KERNEL_ASSERT(str); // Assert that the string is not NULL
     const char *last_char = NULL;
     while (*str != 0) { // Loop through the string
         if (*str == ch) {
@@ -104,7 +104,7 @@ char *k_strrchr(const char *str, const uint8_t ch) {
 /* Concatenate the string 'src_' to the end of string 'dst_' and return the
  * concatenated string */
 char *k_strcat(char *dst_, const char *src_) {
-    KERNEL_ASSERT(dst_ != NULL &&
+    KERNEL_ASSERT(dst_ &&
            src_ !=
                NULL); // Assert that both source and destination are not NULL
     char *str = dst_;
@@ -118,7 +118,7 @@ char *k_strcat(char *dst_, const char *src_) {
 
 /* Count the occurrences of character 'ch' in the string 'str' */
 uint32_t k_strchrs(const char *str, uint8_t ch) {
-    KERNEL_ASSERT(str != NULL); // Assert that the string is not NULL
+    KERNEL_ASSERT(str); // Assert that the string is not NULL
     uint32_t ch_cnt = 0;
     const char *p = str;
     while (*p != 0) { // Loop through the string

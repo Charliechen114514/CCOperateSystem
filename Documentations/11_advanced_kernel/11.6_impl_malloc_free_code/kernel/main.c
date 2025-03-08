@@ -17,8 +17,8 @@ int prog_a_pid = 0, prog_b_pid = 0;
 int main(void) { 
     init_all(); 
     interrupt_enabled(); 
-    process_execute(u_prog_a, "u_prog_a"); 
-    process_execute(u_prog_b, "u_prog_b"); 
+    create_process(u_prog_a, "u_prog_a"); 
+    create_process(u_prog_b, "u_prog_b"); 
     thread_start("k_thread_a", 31, thread_a, "I am thread_a"); 
     thread_start("k_thread_b", 31, thread_b, "I am thread_b"); 
     while(1); 

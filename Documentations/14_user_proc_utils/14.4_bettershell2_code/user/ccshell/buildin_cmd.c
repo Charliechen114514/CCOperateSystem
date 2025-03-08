@@ -60,7 +60,7 @@ void make_clear_abs_path(char *path, char *final_path) {
     if (path[0] != '/') { // If it's not an absolute path, prepend the current
                           // working directory
         k_memset(abs_path, 0, MAX_PATH_LEN);
-        if (getcwd(abs_path, MAX_PATH_LEN) != NULL) {
+        if (getcwd(abs_path, MAX_PATH_LEN)) {
             if (!((abs_path[0] == '/') &&
                   (abs_path[1] == 0))) { // Avoid a non-root directory path
                 k_strcat(abs_path, "/");
@@ -154,7 +154,7 @@ void buildin_ls(uint32_t argc, char **argv) {
         arg_idx++;
     }
 
-    if (pathname == NULL) { // If no path is provided, use the current directory
+    if (!pathname) { // If no path is provided, use the current directory
         if (NULL != getcwd(final_path, MAX_PATH_LEN)) {
             pathname = final_path;
         } else {

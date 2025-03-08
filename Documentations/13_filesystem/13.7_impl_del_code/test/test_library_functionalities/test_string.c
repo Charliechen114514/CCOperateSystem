@@ -104,7 +104,7 @@ static void test_k_strchr(void)
     TEST_ASSERT(k_strchr(str, 'o') == &str[4]);
 
     // Edge case: Character is not found
-    TEST_ASSERT(k_strchr(str, 'x') == NULL);
+    TEST_ASSERT(!k_strchr(str, 'x'))
 }
 
 static void test_k_strrchr(void)
@@ -115,7 +115,7 @@ static void test_k_strrchr(void)
     TEST_ASSERT(k_strrchr(str, 'o') == &str[8]);
 
     // Edge case: Character is not found
-    TEST_ASSERT(k_strrchr(str, 'x') == NULL);
+    TEST_ASSERT(!k_strrchr(str, 'x'));
 }
 
 static void test_k_strcat(void)

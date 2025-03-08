@@ -52,7 +52,7 @@ static bool mount_partition(list_elem *pelem, int arg)
         /********** Load the block bitmap from disk into memory **********/
         // Allocate memory for the block bitmap
         cur_part->block_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->block_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->block_bitmap.bits == NULL)
+        if (!(cur_part->block_bitmap.bits))
         {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
@@ -66,7 +66,7 @@ static bool mount_partition(list_elem *pelem, int arg)
         /********** Load the inode bitmap from disk into memory **********/
         // Allocate memory for the inode bitmap
         cur_part->inode_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->inode_bitmap.bits == NULL)
+        if (!(cur_part->inode_bitmap.bits))
         {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
@@ -267,7 +267,7 @@ char *path_parse(char *pathname, char *name_store)
 /* Return the depth of the path, e.g., for /a/b/c, the depth is 3 */
 int32_t path_depth_cnt(char *pathname)
 {
-    KERNEL_ASSERT(pathname != NULL);
+    KERNEL_ASSERT(pathname);
     char *p = pathname;
     char name[MAX_FILE_NAME_LEN]; // Used as the parameter for path_parse to
                                   // parse the path
@@ -505,7 +505,7 @@ int32_t sys_read(int32_t fd, void *buf, uint32_t count) {
     if (fd < 0 || fd == stdout_no || fd == stderr_no) {
         ccos_printk("sys_read: fd error\n");
     }
-    KERNEL_ASSERT(buf != NULL);
+    KERNEL_ASSERT(buf);
     uint32_t _fd = fd_local2global(fd); 
     return file_read(&file_table[_fd], buf, count); 
 }
@@ -572,7 +572,7 @@ int32_t sys_unlink(const char *pathname) {
     /* Check if the file is currently in use in the open file table */
     uint32_t file_idx = 0;
     while (file_idx < MAX_FILE_OPEN) {
-        if (file_table[file_idx].fd_inode != NULL &&
+        if (file_table[file_idx].fd_inode &&
             (uint32_t)inode_no == file_table[file_idx].fd_inode->i_no) {
             break;
         }
@@ -587,7 +587,7 @@ int32_t sys_unlink(const char *pathname) {
 
     /* Allocate buffer for delete_dir_entry */
     void *io_buf = sys_malloc(SECTOR_SIZE + SECTOR_SIZE);
-    if (io_buf == NULL) {
+    if (!io_buf) {
         dir_close(searched_record.parent_dir);
         ccos_printk("sys_unlink: malloc for io_buf failed\n");
         return -1;

@@ -52,7 +52,7 @@ static bool mount_partition(list_elem *pelem, int arg)
         /********** Load the block bitmap from disk into memory **********/
         // Allocate memory for the block bitmap
         cur_part->block_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->block_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->block_bitmap.bits == NULL)
+        if (!(cur_part->block_bitmap.bits))
         {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
@@ -66,7 +66,7 @@ static bool mount_partition(list_elem *pelem, int arg)
         /********** Load the inode bitmap from disk into memory **********/
         // Allocate memory for the inode bitmap
         cur_part->inode_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->inode_bitmap.bits == NULL)
+        if (!(cur_part->inode_bitmap.bits))
         {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
@@ -267,7 +267,7 @@ char *path_parse(char *pathname, char *name_store)
 /* Return the depth of the path, e.g., for /a/b/c, the depth is 3 */
 int32_t path_depth_cnt(char *pathname)
 {
-    KERNEL_ASSERT(pathname != NULL);
+    KERNEL_ASSERT(pathname);
     char *p = pathname;
     char name[MAX_FILE_NAME_LEN]; // Used as the parameter for path_parse to
                                   // parse the path

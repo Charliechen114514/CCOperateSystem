@@ -50,7 +50,7 @@ bool search_dir_entry(DiskPartition *part, Dir *pdir, const char *name,
     uint32_t block_cnt =
         140; // Total of 12 direct blocks and 128 indirect blocks
     uint32_t *all_blocks = (uint32_t *)sys_malloc(48 + 512);
-    if (all_blocks == NULL) {
+    if (!all_blocks ) {
         ccos_printk("search_dir_entry: sys_malloc for all_blocks failed");
         return false;
     }

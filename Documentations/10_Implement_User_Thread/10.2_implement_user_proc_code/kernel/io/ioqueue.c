@@ -30,14 +30,14 @@ bool ioq_empty(IOQueue* ioq) {
 
 /* Makes the current producer or consumer wait on this queue */
 static void ioq_wait(TaskStruct** waiter) {
-    KERNEL_ASSERT(*waiter == NULL && waiter != NULL); // Ensure that the waiter is currently unset
+    KERNEL_ASSERT(!(*waiter) && waiter); // Ensure that the waiter is currently unset
     *waiter = current_thread(); // Set the current thread as the waiter
     thread_block(TASK_BLOCKED); // Block the thread until it is unblocked
 }
 
 /* Wakes up a waiting producer or consumer */
 static void wakeup(TaskStruct** waiter) {
-    KERNEL_ASSERT(*waiter != NULL); // Ensure that there is a thread to wake up
+    KERNEL_ASSERT(*waiter); // Ensure that there is a thread to wake up
     thread_unblock(*waiter); // Unblock the waiting thread
     *waiter = NULL; // Reset the waiter pointer to NULL
 }
@@ -57,7 +57,7 @@ char ioq_getchar(IOQueue* ioq) {
     ioq->index_tail = next_pos(ioq->index_tail); // Move the tail index to the next position
 
     // If there is a waiting producer, wake it up
-    if (ioq->producer != NULL) {
+    if (ioq->producer) {
         wakeup(&ioq->producer);
     }
 
@@ -79,7 +79,7 @@ void ioq_putchar(IOQueue* ioq, char byte) {
     ioq->index_head = next_pos(ioq->index_head); // Move the head index to the next position
 
     // If there is a waiting consumer, wake it up
-    if (ioq->consumer != NULL) {
+    if (ioq->consumer) {
         wakeup(&ioq->consumer);
     }
 }

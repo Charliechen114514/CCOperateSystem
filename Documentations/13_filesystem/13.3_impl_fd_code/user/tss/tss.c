@@ -1,5 +1,5 @@
 #include "include/user/tss/tss.h"
-#include "include/kernel/kernel_table_property.h"
+#include "include/property/selectors.h"
 #include "include/library/ccos_print.h"
 #include "include/library/types.h"
 #include "include/memory/memory_settings.h"

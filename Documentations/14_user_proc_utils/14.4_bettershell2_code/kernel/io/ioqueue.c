@@ -29,7 +29,7 @@ bool ioq_empty(IOQueue* ioq) {
 
 /* Makes the current producer or consumer wait on this queue */
 static void ioq_wait(TaskStruct** waiter) {
-    KERNEL_ASSERT(*waiter == NULL && waiter); // Ensure that the waiter is currently unset
+    KERNEL_ASSERT(!(*waiter) && waiter); // Ensure that the waiter is currently unset
     *waiter = current_thread(); // Set the current thread as the waiter
     thread_block(TASK_BLOCKED); // Block the thread until it is unblocked
 }

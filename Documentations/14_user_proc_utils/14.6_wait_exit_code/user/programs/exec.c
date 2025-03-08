@@ -79,7 +79,7 @@ static bool segment_load(int32_t fd, uint32_t offset, uint32_t filesz,
 
         // Allocate memory if PDE or PTE doesn't exist
         if (!(*pde & PG_P_1) || !(*pte & PG_P_1)) {
-            if (get_a_page(PF_USER, vaddr_page) == NULL) {
+            if (!get_a_page(PF_USER, vaddr_page)) {
                 return false;
             }
         }

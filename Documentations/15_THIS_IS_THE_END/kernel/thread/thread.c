@@ -166,7 +166,7 @@ static bool pid_check(list_elem *pelem, int32_t pid) {
 /* Find a thread's PCB by PID. Return NULL if not found. */
 TaskStruct *pid2thread(int32_t pid) {
     list_elem *pelem = list_traversal(&thread_all_list, pid_check, pid);
-    if (pelem == NULL) {
+    if (!pelem ) {
         return NULL; // Return NULL if no thread is found with the specified PID
     }
     TaskStruct *thread = elem2entry(TaskStruct, all_list_tag, pelem);
@@ -287,7 +287,7 @@ void schedule()
     next->status = TASK_RUNNING;
 
     /* Activate the process (e.g., set page tables, etc.) */
-    process_activate(next);
+    activate_process_settings(next);
 
     switch_to(cur, next); // Switch to the next thread
 }
@@ -348,7 +348,7 @@ void thread_init(void)
     list_init(&thread_ready_list); // Initialize the ready list
     list_init(&thread_all_list);   // Initialize the all threads list
     pid_pool_init();
-    process_execute(init, "init"); 
+    create_process(init, "init"); 
     /* Create the main thread */
     make_main_thread();
 

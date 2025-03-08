@@ -129,7 +129,7 @@ void bitmap_sync(DiskPartition *part, uint32_t bit_idx, uint8_t btmp_type)
 int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag)
 {
     void *io_buf = sys_malloc(1024); // Allocate memory for a temporary buffer.
-    if (io_buf == NULL)
+    if (!io_buf)
     {
         ccos_printk("in file_create: sys_malloc for io_buf failed\n");
         return -1;
@@ -149,7 +149,7 @@ int32_t file_create(Dir *parent_dir, char *filename, uint8_t flag)
     /* Allocate memory for the inode and initialize it. */
     Inode *new_file_inode =
         (Inode *)sys_malloc(sizeof(Inode));
-    if (new_file_inode == NULL)
+    if (!new_file_inode)
     {
         ccos_printk("file_create: sys_malloc for inode failed\n");
         rollback_step = 1;
@@ -276,7 +276,7 @@ int32_t file_open(uint32_t inode_no, uint8_t flag) {
 /* Closes the given file.
  * If the file is successfully closed, returns 0; otherwise, returns -1. */
 int32_t file_close(File *file) {
-    if (file == NULL) { // Check if the file is null.
+    if (!file) { // Check if the file is null.
         return -1;
     }
 
@@ -306,14 +306,14 @@ int32_t file_write(File *file, const void *buf, uint32_t count) {
 
     // Allocate memory for the IO buffer and the block address array.
     uint8_t *io_buf = sys_malloc(BLOCK_SIZE);
-    if (io_buf == NULL) {
+    if (!io_buf) {
         ccos_printk("file_write: sys_malloc for io_buf failed\n");
         return -1;
     }
 
     uint32_t *all_blocks = (uint32_t *)sys_malloc(
         BLOCK_SIZE + 48); // Array to store all block addresses.
-    if (all_blocks == NULL) {
+    if (!all_blocks ) {
         ccos_printk("file_write: sys_malloc for all_blocks failed\n");
         return -1;
     }
@@ -512,13 +512,13 @@ int32_t file_read(File *file, void *buf, uint32_t count) {
 
     uint8_t *io_buf =
         sys_malloc(BLOCK_SIZE); // Allocate buffer for I/O operations
-    if (io_buf == NULL) {
+    if (!io_buf) {
         ccos_printk("file_read: sys_malloc for io_buf failed\n");
     }
     uint32_t *all_blocks = (uint32_t *)sys_malloc(
         BLOCK_SIZE + 48); // Allocate space to store the addresses of all blocks
                           // used by the file
-    if (all_blocks == NULL) {
+    if (!all_blocks ) {
         ccos_printk("file_read: sys_malloc for all_blocks failed\n");
         return -1;
     }

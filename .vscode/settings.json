@@ -6,6 +6,14 @@
         "kernel_assert.h": "c",
         "bitmap.h": "c",
         "thread.h": "c",
-        "selectors.h": "c"
+        "selectors.h": "c",
+        "kernel_table_property.h": "c",
+        "memory_settings.h": "c",
+        "tss.h": "c",
+        "thread_settings.h": "c",
+        "types.h": "c",
+        "interrupt.h": "c",
+        "lock.h": "c",
+        "string.h": "c"
     }
 }

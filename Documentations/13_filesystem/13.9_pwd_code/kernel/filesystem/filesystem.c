@@ -52,7 +52,7 @@ static bool mount_partition(list_elem *pelem, int arg)
         /********** Load the block bitmap from disk into memory **********/
         // Allocate memory for the block bitmap
         cur_part->block_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->block_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->block_bitmap.bits == NULL)
+        if (!(cur_part->block_bitmap.bits))
         {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
@@ -66,7 +66,7 @@ static bool mount_partition(list_elem *pelem, int arg)
         /********** Load the inode bitmap from disk into memory **********/
         // Allocate memory for the inode bitmap
         cur_part->inode_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
-        if (cur_part->inode_bitmap.bits == NULL)
+        if (!(cur_part->inode_bitmap.bits))
         {
             KERNEL_PANIC_SPIN("alloc memory failed!"); // Kernel panic if allocation fails
         }
@@ -612,7 +612,7 @@ int32_t sys_unlink(const char *pathname)
 
     /* Allocate buffer for delete_dir_entry */
     void *io_buf = sys_malloc(SECTOR_SIZE + SECTOR_SIZE);
-    if (io_buf == NULL)
+    if (!io_buf)
     {
         dir_close(searched_record.parent_dir);
         ccos_printk("sys_unlink: malloc for io_buf failed\n");
@@ -633,7 +633,7 @@ int32_t sys_mkdir(const char *pathname)
     uint8_t rollback_step =
         0; // Used to rollback resource states if an operation fails
     void *io_buf = sys_malloc(SECTOR_SIZE * 2);
-    if (io_buf == NULL)
+    if (!io_buf)
     {
         ccos_printk("sys_mkdir: sys_malloc for io_buf failed\n");
         return -1;
@@ -1044,9 +1044,9 @@ char *sys_getcwd(char *buf, uint32_t size)
     /* Ensure buf is not NULL, if the user's buf is NULL,
        the system call getcwd allocates memory for the user's process via malloc
      */
-    KERNEL_ASSERT(buf != NULL);
+    KERNEL_ASSERT(buf);
     void *io_buf = sys_malloc(SECTOR_SIZE);
-    if (io_buf == NULL)
+    if (!io_buf)
     {
         return NULL;
     }

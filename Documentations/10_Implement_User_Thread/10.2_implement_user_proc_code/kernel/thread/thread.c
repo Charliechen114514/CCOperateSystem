@@ -145,7 +145,7 @@ void schedule(void)
     thread_tag = list_pop(&thread_ready_list);
     TaskStruct *next = elem2entry(TaskStruct, general_tag, thread_tag);
     next->status = TASK_RUNNING; // Set the next thread as running
-    process_activate(next);
+    activate_process_settings(next);
     switch_to(cur, next); // Perform context switch to the next thread
 }
 

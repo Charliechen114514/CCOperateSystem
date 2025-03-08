@@ -152,7 +152,7 @@ void *malloc_page(const PoolFlag pf, const uint32_t pg_cnt)
 
     // Get the starting virtual address for the requested number of pages
     void *vaddr_start = vaddr_get(pf, pg_cnt);
-    if (vaddr_start == NULL)
+    if (!vaddr_start)
     {
         return NULL; // Return NULL if the virtual address allocation fails
     }
@@ -197,7 +197,7 @@ void *get_kernel_pages(const uint32_t kpage_count)
 void *get_user_pages(uint32_t pg_cnt) {
     lock_acquire(&user_pool.lock);
     void *vaddr = malloc_page(PF_USER, pg_cnt);
-    if (vaddr != NULL) { // If the allocated address is not NULL, clear the
+    if (vaddr) { // If the allocated address is not NULL, clear the
                          // pages before returning
         k_memset(vaddr, 0, pg_cnt * PG_SIZE);
     }
@@ -219,12 +219,12 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
 
     /* If the current thread is a user process requesting user memory, modify
      * the user process's virtual address bitmap */
-    if (cur->pg_dir != NULL && pf == PF_USER) {
+    if (cur->pg_dir && pf == PF_USER) {
         bit_idx = (vaddr - cur->userprog_vaddr.vaddr_start) / PG_SIZE;
         KERNEL_ASSERT(bit_idx >= 0);
         bitmap_set(&cur->userprog_vaddr.virtual_mem_bitmap, bit_idx, 1);
 
-    } else if (cur->pg_dir == NULL && pf == PF_KERNEL) {
+    } else if (!(cur->pg_dir) && pf == PF_KERNEL) {
         /* If a kernel thread is requesting kernel memory, modify kernel_vaddr.
          */
         bit_idx = (vaddr - kernel_vaddr.vaddr_start) / PG_SIZE;
@@ -236,7 +236,7 @@ void *get_a_page(PoolFlag pf, uint32_t vaddr) {
     }
 
     void *page_phyaddr = palloc(mem_pool);
-    if (page_phyaddr == NULL) {
+    if (!page_phyaddr) {
         lock_release(&mem_pool->lock);
         return NULL;
     }

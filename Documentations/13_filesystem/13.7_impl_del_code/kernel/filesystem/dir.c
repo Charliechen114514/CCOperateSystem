@@ -53,7 +53,7 @@ bool search_dir_entry(DiskPartition *part, Dir *pdir, const char *name,
     uint32_t block_cnt =
         140; // Total of 12 direct blocks and 128 indirect blocks
     uint32_t *all_blocks = (uint32_t *)sys_malloc(48 + 512);
-    if (all_blocks == NULL)
+    if (!all_blocks )
     {
         ccos_printk("search_dir_entry: sys_malloc for all_blocks failed");
         return false;
@@ -319,7 +319,7 @@ bool delete_dir_entry(DiskPartition *part, Dir *pdir, uint32_t inode_no,
                     dir_entry_cnt++;
                     if ((dir_e + dir_entry_idx)->i_no == inode_no)
                     {
-                        KERNEL_ASSERT(dir_entry_found == NULL);
+                        KERNEL_ASSERT(!dir_entry_found);
                         dir_entry_found = dir_e + dir_entry_idx;
                     }
                 }
@@ -327,7 +327,7 @@ bool delete_dir_entry(DiskPartition *part, Dir *pdir, uint32_t inode_no,
             dir_entry_idx++;
         }
 
-        if (dir_entry_found == NULL)
+        if (!dir_entry_found)
         {
             block_idx++;
             continue;

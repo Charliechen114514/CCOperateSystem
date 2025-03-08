@@ -210,7 +210,7 @@ void schedule()
     next->status = TASK_RUNNING;
 
     /* Activate the process (e.g., set page tables, etc.) */
-    process_activate(next);
+    activate_process_settings(next);
 
     switch_to(cur, next); // Switch to the next thread
 }
@@ -316,7 +316,7 @@ static bool pid_check(list_elem *pelem, int32_t pid)
 TaskStruct *pid2thread(int32_t pid)
 {
     list_elem *pelem = list_traversal(&thread_all_list, pid_check, pid);
-    if (pelem == NULL)
+    if (!pelem )
     {
         return NULL; // Return NULL if no thread is found with the specified PID
     }
@@ -333,7 +333,7 @@ void thread_init(void)
     list_init(&thread_all_list);   // Initialize the all threads list
     lock_init(&pid_lock);
 
-    process_execute(init, "init"); 
+    create_process(init, "init"); 
     /* Create the main thread */
     make_main_thread();
 
