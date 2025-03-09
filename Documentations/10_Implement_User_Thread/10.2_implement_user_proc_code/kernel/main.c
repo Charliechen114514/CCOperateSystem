@@ -13,7 +13,7 @@ int main(void)
 {
     init_all();
     thread_start("k_thread_a", 31, thread_a, "In thread A:");
-    thread_start("k_thread_b", 16, thread_b, "In thread B:");
+    thread_start("k_thread_b", 31, thread_b, "In thread B:");
     create_process(u_prog_a, "user_prog_a");
     create_process(u_prog_b, "user_prog_b");
     interrupt_enabled();

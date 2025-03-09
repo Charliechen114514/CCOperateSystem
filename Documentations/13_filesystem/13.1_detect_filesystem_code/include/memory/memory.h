@@ -9,16 +9,16 @@ typedef struct {
     uint32_t vaddr_start;
 } VirtualMemoryHandle;
 
-/* 内存块 */
+/* MemoryBlock */
 typedef struct {
     list_elem free_elem;
 }MemoryBlock;
 
-/* 内存块描述符 */
+/* MemoryBlockDescriptor */
 typedef struct {
-    uint32_t    block_size;       // 内存块大小
-    uint32_t    blocks_per_arena; // 本arena中可容纳此mem_block的数量.
-    list        free_list;     // 目前可用的mem_block链表
+    uint32_t    block_size;       // block size of the memory
+    uint32_t    blocks_per_arena; // current memblock contains
+    list        free_list;     // current available mem blocks
 }MemoryBlockDescriptor;
 
 typedef struct __mem_pool MemoryPool;

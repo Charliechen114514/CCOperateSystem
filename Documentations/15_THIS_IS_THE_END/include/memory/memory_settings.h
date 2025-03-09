@@ -72,5 +72,4 @@
 // for malloc free issue
 #define     DESC_CNT            (7)
 
-
 #endif

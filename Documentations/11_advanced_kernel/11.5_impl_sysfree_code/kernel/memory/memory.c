@@ -580,47 +580,44 @@ void mfree_page(PoolFlag pf, void *_vaddr, uint32_t pg_cnt) {
 /* Free the memory pointed to by ptr */
 void sys_free(void *ptr) {
     KERNEL_ASSERT(ptr);
-    if (ptr) {
-        PoolFlag PF;
-        MemoryPool *mem_pool;
-
-        /* Determine whether it's a thread or a process */
-        if (!current_thread()->pg_dir) {
-            KERNEL_ASSERT((uint32_t)ptr >= KERNEL_HEAP_V_START);
-            PF = PF_KERNEL;
-            mem_pool = &kernel_pool;
-        } else {
-            PF = PF_USER;
-            mem_pool = &user_pool;
-        }
-
-        lock_acquire(&mem_pool->lock);
-        MemoryBlock *b = ptr;
-        Arena *a = block2arena(
-            b); // Convert the memory block to an arena to get metadata
-            KERNEL_ASSERT(a->large == 0 || a->large == 1);
-        if (!(a->desc) &&
-            a->large == true) { // Memory larger than 1024 bytes
-            mfree_page(PF, a, a->cnt);
-        } else { // Memory block smaller than or equal to 1024 bytes
-            /* Add the memory block back to the free list */
-            list_append(&a->desc->free_list, &b->free_elem);
-
-            /* Check if all blocks in this arena are freed, if so, release the
-             * arena */
-            if (++a->cnt == a->desc->blocks_per_arena) {
-                uint32_t block_idx;
-                for (block_idx = 0; block_idx < a->desc->blocks_per_arena;
-                     block_idx++) {
-                    MemoryBlock *b = arena2block(a, block_idx);
-                    KERNEL_ASSERT(elem_find(&a->desc->free_list, &b->free_elem));
-                    list_remove(&b->free_elem);
-                }
-                mfree_page(PF, a, 1);
-            }
-        }
-        lock_release(&mem_pool->lock);
+    PoolFlag PF;
+    MemoryPool *mem_pool;
+    /* Determine whether it's a thread or a process */
+    if (!current_thread()->pg_dir) {
+        KERNEL_ASSERT((uint32_t)ptr >= KERNEL_HEAP_V_START);
+        PF = PF_KERNEL;
+        mem_pool = &kernel_pool;
+    } else {
+        PF = PF_USER;
+        mem_pool = &user_pool;
     }
+
+    lock_acquire(&mem_pool->lock);
+    MemoryBlock *b = ptr;
+    Arena *a = block2arena(
+        b); // Convert the memory block to an arena to get metadata
+        KERNEL_ASSERT(a->large == 0 || a->large == 1);
+    if (!(a->desc) &&
+        a->large == true) { // Memory larger than 1024 bytes
+        mfree_page(PF, a, a->cnt);
+    } else { // Memory block smaller than or equal to 1024 bytes
+        /* Add the memory block back to the free list */
+        list_append(&a->desc->free_list, &b->free_elem);
+
+        /* Check if all blocks in this arena are freed, if so, release the
+         * arena */
+        if (++a->cnt == a->desc->blocks_per_arena) {
+            uint32_t block_idx;
+            for (block_idx = 0; block_idx < a->desc->blocks_per_arena;
+                 block_idx++) {
+                MemoryBlock *b = arena2block(a, block_idx);
+                KERNEL_ASSERT(elem_find(&a->desc->free_list, &b->free_elem));
+                list_remove(&b->free_elem);
+            }
+            mfree_page(PF, a, 1);
+        }
+    }
+    lock_release(&mem_pool->lock);
 }
 
 // Function to initialize memory management system

@@ -14,6 +14,7 @@
         "types.h": "c",
         "interrupt.h": "c",
         "lock.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "syscall.h": "c"
     }
 }
