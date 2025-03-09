@@ -4,26 +4,22 @@
 #include "include/library/list.h"
 #include "include/device/ide.h"
 
-/* inode结构 */
-struct inode {
-   uint32_t i_no;    // inode编号
+/* inode structure */
+typedef struct {
+   uint32_t i_no;    // inode number, uniquely identifies a file in the filesystem
 
-/* 当此inode是文件时,i_size是指文件大小,
-若此inode是目录,i_size是指该目录下所有目录项大小之和*/
+   /* When the inode represents a file, i_size is the file size in bytes.
+      When the inode represents a directory, i_size is the total size of all directory entries in the directory. */
    uint32_t i_size;
 
-   uint32_t i_open_cnts;   // 记录此文件被打开的次数
-   bool write_deny;	   // 写文件不能并行,进程写文件前检查此标识
+   uint32_t i_open_cnts;   // Keeps track of the number of times this file has been opened by processes or threads
 
-/* i_sectors[0-11]是直接块, i_sectors[12]用来存储一级间接块指针 */
-   uint32_t i_sectors[13];
-   list_elem inode_tag;
-};
+   bool write_deny;        // A flag to prevent concurrent write operations to this file. If true, new write operations are denied until the current write completes
 
-struct inode* inode_open(DiskPartition* part, uint32_t inode_no);
-void inode_sync(DiskPartition* part, struct inode* inode, void* io_buf);
-void inode_init(uint32_t inode_no, struct inode* new_inode);
-void inode_close(struct inode* inode);
-void inode_release(DiskPartition* part, uint32_t inode_no);
-void inode_delete(DiskPartition* part, uint32_t inode_no, void* io_buf);
+   /* i_sectors[0-11] are direct block pointers, i_sectors[12] is used for storing the pointer to the first indirect block */
+   uint32_t i_sectors[13]; // Array of block pointers, with the first 11 being direct pointers to data blocks and the 12th being a pointer to an indirect block containing more block pointers
+
+   list_elem inode_tag;    // A list element to manage the inode in a linked list, typically used for inode management in the filesystem
+} Inode;
+
 #endif

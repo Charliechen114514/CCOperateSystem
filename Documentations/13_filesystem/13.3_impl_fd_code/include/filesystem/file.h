@@ -36,7 +36,5 @@ int32_t get_free_slot_in_global(void);
 int32_t pcb_fd_install(int32_t globa_fd_idx);
 int32_t file_open(uint32_t inode_no, uint8_t flag);
 int32_t file_close(File *file);
-int32_t file_write(File *file, const void *buf, uint32_t count);
-int32_t file_read(File *file, void *buf, uint32_t count);
 
 #endif

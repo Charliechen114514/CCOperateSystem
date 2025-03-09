@@ -395,6 +395,7 @@ int32_t sys_open(const char *pathname, uint8_t flags) {
 
     /* First, check if the file exists */
     int inode_no = search_file(pathname, &searched_record);
+    ccos_printk("%s, %d\n", pathname, inode_no);
     bool found = inode_no != -1 ? true : false;
 
     if (searched_record.file_type == FT_DIRECTORY) {
