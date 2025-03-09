@@ -22,13 +22,13 @@ struct pid_pool {
    struct lock pid_lock;      // 分配pid锁
 }pid_pool;
 
-TaskStruct* main_thread;    // 主线程PCB
-TaskStruct* idle_thread;    // idle线程
+struct task_struct* main_thread;    // 主线程PCB
+struct task_struct* idle_thread;    // idle线程
 struct list thread_ready_list;	    // 就绪队列
 struct list thread_all_list;	    // 所有任务队列
 static struct list_elem* thread_tag;// 用于保存队列中的线程结点
 
-extern void switch_to(TaskStruct* cur, TaskStruct* next);
+extern void switch_to(struct task_struct* cur, struct task_struct* next);
 extern void init(void);
 /* 系统空闲时运行的线程 */
 static void idle(void* arg UNUSED) {
@@ -41,12 +41,12 @@ static void idle(void* arg UNUSED) {
 }
 
 /* 获取当前线程pcb指针 */
-TaskStruct* running_thread() {
+struct task_struct* running_thread() {
    uint32_t esp; 
    asm ("mov %%esp, %0" \
       : "=g" (esp));
   /* 取esp整数部分即pcb起始地址 */
-   return (TaskStruct*)(esp & 0xfffff000);
+   return (struct task_struct*)(esp & 0xfffff000);
 }
 
 /* 由kernel_thread去执行function(func_arg) */
@@ -89,13 +89,13 @@ pid_t fork_pid(void) {
 }
 
 /* 初始化线程栈thread_stack,将待执行的函数和参数放到thread_stack中相应的位置 */
-void thread_create(TaskStruct* pthread, thread_func function, void* func_arg) {
+void thread_create(struct task_struct* pthread, thread_func function, void* func_arg) {
    /* 先预留中断使用栈的空间,可见thread.h中定义的结构 */
-   pthread->self_kstack -= sizeof(InterruptStack);
+   pthread->self_kstack -= sizeof(struct intr_stack);
 
    /* 再留出线程栈空间,可见thread.h中定义 */
-   pthread->self_kstack -= sizeof(ThreadStack);
-   ThreadStack* kthread_stack = (ThreadStack*)pthread->self_kstack;
+   pthread->self_kstack -= sizeof(struct thread_stack);
+   struct thread_stack* kthread_stack = (struct thread_stack*)pthread->self_kstack;
    kthread_stack->eip = kernel_thread;
    kthread_stack->function = function;
    kthread_stack->func_arg = func_arg;
@@ -103,7 +103,7 @@ void thread_create(TaskStruct* pthread, thread_func function, void* func_arg) {
 }
 
 /* 初始化线程基本信息 */
-void init_thread(TaskStruct* pthread, char* name, int prio) {
+void init_thread(struct task_struct* pthread, char* name, int prio) {
    memset(pthread, 0, sizeof(*pthread));
    pthread->pid = allocate_pid();
    strcpy(pthread->name, name);
@@ -137,9 +137,9 @@ void init_thread(TaskStruct* pthread, char* name, int prio) {
 }
 
 /* 创建一优先级为prio的线程,线程名为name,线程所执行的函数是function(func_arg) */
-TaskStruct* thread_start(char* name, int prio, thread_func function, void* func_arg) {
+struct task_struct* thread_start(char* name, int prio, thread_func function, void* func_arg) {
 /* pcb都位于内核空间,包括用户进程的pcb也是在内核空间 */
-   TaskStruct* thread = get_kernel_pages(1);
+   struct task_struct* thread = get_kernel_pages(1);
    init_thread(thread, name, prio);
    thread_create(thread, function, func_arg);
 
@@ -173,7 +173,7 @@ static void make_main_thread(void) {
 void schedule() {
    ASSERT(intr_get_status() == INTR_OFF);
 
-   TaskStruct* cur = running_thread(); 
+   struct task_struct* cur = running_thread(); 
    if (cur->status == TASK_RUNNING) { // 若此线程只是cpu时间片到了,将其加入到就绪队列尾
       ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
       list_append(&thread_ready_list, &cur->general_tag);
@@ -193,7 +193,7 @@ void schedule() {
    thread_tag = NULL;	  // thread_tag清空
 /* 将thread_ready_list队列中的第一个就绪线程弹出,准备将其调度上cpu. */
    thread_tag = list_pop(&thread_ready_list);   
-   TaskStruct* next = elem2entry(TaskStruct, general_tag, thread_tag);
+   struct task_struct* next = elem2entry(struct task_struct, general_tag, thread_tag);
    next->status = TASK_RUNNING;
 
    /* 击活任务页表等 */
@@ -203,11 +203,11 @@ void schedule() {
 }
 
 /* 当前线程将自己阻塞,标志其状态为stat. */
-void thread_block(TaskStatus stat) {
+void thread_block(enum task_status stat) {
 /* stat取值为TASK_BLOCKED,TASK_WAITING,TASK_HANGING,也就是只有这三种状态才不会被调度*/
    ASSERT(((stat == TASK_BLOCKED) || (stat == TASK_WAITING) || (stat == TASK_HANGING)));
    enum intr_status old_status = intr_disable();
-   TaskStruct* cur_thread = running_thread();
+   struct task_struct* cur_thread = running_thread();
    cur_thread->status = stat; // 置其状态为stat 
    schedule();		      // 将当前线程换下处理器
 /* 待当前线程被解除阻塞后才继续运行下面的intr_set_status */
@@ -215,7 +215,7 @@ void thread_block(TaskStatus stat) {
 }
 
 /* 将线程pthread解除阻塞 */
-void thread_unblock(TaskStruct* pthread) {
+void thread_unblock(struct task_struct* pthread) {
    enum intr_status old_status = intr_disable();
    ASSERT(((pthread->status == TASK_BLOCKED) || (pthread->status == TASK_WAITING) || (pthread->status == TASK_HANGING)));
    if (pthread->status != TASK_READY) {
@@ -231,7 +231,7 @@ void thread_unblock(TaskStruct* pthread) {
 
 /* 主动让出cpu,换其它线程运行 */
 void thread_yield(void) {
-   TaskStruct* cur = running_thread();   
+   struct task_struct* cur = running_thread();   
    enum intr_status old_status = intr_disable();
    ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
    list_append(&thread_ready_list, &cur->general_tag);
@@ -263,7 +263,7 @@ static void pad_print(char* buf, int32_t buf_len, void* ptr, char format) {
 
 /* 用于在list_traversal函数中的回调函数,用于针对线程队列的处理 */
 static bool elem2thread_info(struct list_elem* pelem, int arg UNUSED) {
-   TaskStruct* pthread = elem2entry(TaskStruct, all_list_tag, pelem);
+   struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pelem);
    char out_pad[16] = {0};
 
    pad_print(out_pad, 16, &pthread->pid, 'd');
@@ -311,7 +311,7 @@ void sys_ps(void) {
 }
 
 /* 回收thread_over的pcb和页表,并将其从调度队列中去除 */
-void thread_exit(TaskStruct* thread_over, bool need_schedule) {
+void thread_exit(struct task_struct* thread_over, bool need_schedule) {
    /* 要保证schedule在关中断情况下调用 */
    intr_disable();
    thread_over->status = TASK_DIED;
@@ -344,7 +344,7 @@ void thread_exit(TaskStruct* thread_over, bool need_schedule) {
 
 /* 比对任务的pid */
 static bool pid_check(struct list_elem* pelem, int32_t pid) {
-   TaskStruct* pthread = elem2entry(TaskStruct, all_list_tag, pelem);
+   struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pelem);
    if (pthread->pid == pid) {
       return true;
    }
@@ -352,12 +352,12 @@ static bool pid_check(struct list_elem* pelem, int32_t pid) {
 }
 
 /* 根据pid找pcb,若找到则返回该pcb,否则返回NULL */
-TaskStruct* pid2thread(int32_t pid) {
+struct task_struct* pid2thread(int32_t pid) {
    struct list_elem* pelem = list_traversal(&thread_all_list, pid_check, pid);
    if (pelem == NULL) {
       return NULL;
    }
-   TaskStruct* thread = elem2entry(TaskStruct, all_list_tag, pelem);
+   struct task_struct* thread = elem2entry(struct task_struct, all_list_tag, pelem);
    return thread;
 }
 

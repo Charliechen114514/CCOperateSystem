@@ -161,12 +161,12 @@ int32_t sys_execv(const char* path, const char* argv[]) {
       return -1;
    }
    
-   TaskStruct* cur = running_thread();
+   struct task_struct* cur = running_thread();
    /* 修改进程名 */
    memcpy(cur->name, path, TASK_NAME_LEN);
 
    /* 修改栈中参数 */
-   InterruptStack* intr_0_stack = (InterruptStack*)((uint32_t)cur + PG_SIZE - sizeof(InterruptStack));
+   struct intr_stack* intr_0_stack = (struct intr_stack*)((uint32_t)cur + PG_SIZE - sizeof(struct intr_stack));
    /* 参数传递给用户进程 */
    intr_0_stack->ebx = (int32_t)argv;
    intr_0_stack->ecx = argc;

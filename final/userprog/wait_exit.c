@@ -14,7 +14,7 @@
  * 1 页表中对应的物理页
  * 2 虚拟内存池占物理页框
  * 3 关闭打开的文件 */
-static void release_prog_resource(TaskStruct* release_thread) {
+static void release_prog_resource(struct task_struct* release_thread) {
    uint32_t* pgdir_vaddr = release_thread->pgdir;
    uint16_t user_pde_nr = 768, pde_idx = 0;
    uint32_t pde = 0;
@@ -77,7 +77,7 @@ static void release_prog_resource(TaskStruct* release_thread) {
 /* list_traversal的回调函数,
  * 查找pelem的parent_pid是否是ppid,成功返回true,失败则返回false */
 static bool find_child(struct list_elem* pelem, int32_t ppid) {
-   TaskStruct* pthread = elem2entry(TaskStruct, all_list_tag, pelem);
+   struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pelem);
    if (pthread->parent_pid == ppid) {     // 若该任务的parent_pid为ppid,返回
       return true;   // list_traversal只有在回调函数返回true时才会停止继续遍历,所以在此返回true
    }
@@ -87,7 +87,7 @@ static bool find_child(struct list_elem* pelem, int32_t ppid) {
 /* list_traversal的回调函数,
  * 查找状态为TASK_HANGING的任务 */
 static bool find_hanging_child(struct list_elem* pelem, int32_t ppid) {
-   TaskStruct* pthread = elem2entry(TaskStruct, all_list_tag, pelem);
+   struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pelem);
    if (pthread->parent_pid == ppid && pthread->status == TASK_HANGING) {
       return true;
    }
@@ -97,7 +97,7 @@ static bool find_hanging_child(struct list_elem* pelem, int32_t ppid) {
 /* list_traversal的回调函数,
  * 将一个子进程过继给init */
 static bool init_adopt_a_child(struct list_elem* pelem, int32_t pid) {
-   TaskStruct* pthread = elem2entry(TaskStruct, all_list_tag, pelem);
+   struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pelem);
    if (pthread->parent_pid == pid) {     // 若该进程的parent_pid为pid,返回
       pthread->parent_pid = 1;
    }
@@ -107,14 +107,14 @@ static bool init_adopt_a_child(struct list_elem* pelem, int32_t pid) {
 /* 等待子进程调用exit,将子进程的退出状态保存到status指向的变量.
  * 成功则返回子进程的pid,失败则返回-1 */
 pid_t sys_wait(int32_t* status) {
-   TaskStruct* parent_thread = running_thread();
+   struct task_struct* parent_thread = running_thread();
 
    while(1) {
       /* 优先处理已经是挂起状态的任务 */
       struct list_elem* child_elem = list_traversal(&thread_all_list, find_hanging_child, parent_thread->pid);
       /* 若有挂起的子进程 */
       if (child_elem != NULL) {
-	 TaskStruct* child_thread = elem2entry(TaskStruct, all_list_tag, child_elem);
+	 struct task_struct* child_thread = elem2entry(struct task_struct, all_list_tag, child_elem);
 	 *status = child_thread->exit_status; 
 
 	 /* thread_exit之后,pcb会被回收,因此提前获取pid */
@@ -140,7 +140,7 @@ pid_t sys_wait(int32_t* status) {
 
 /* 子进程用来结束自己时调用 */
 void sys_exit(int32_t status) {
-   TaskStruct* child_thread = running_thread();
+   struct task_struct* child_thread = running_thread();
    child_thread->exit_status = status; 
    if (child_thread->parent_pid == -1) {
       PANIC("sys_exit: child_thread->parent_pid is -1\n");
@@ -153,7 +153,7 @@ void sys_exit(int32_t status) {
    release_prog_resource(child_thread); 
 
    /* 如果父进程正在等待子进程退出,将父进程唤醒 */
-   TaskStruct* parent_thread = pid2thread(child_thread->parent_pid);
+   struct task_struct* parent_thread = pid2thread(child_thread->parent_pid);
    if (parent_thread->status == TASK_WAITING) {
       thread_unblock(parent_thread);
    }

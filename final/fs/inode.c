@@ -96,7 +96,7 @@ struct inode* inode_open(struct partition* part, uint32_t inode_no) {
 /* 为使通过sys_malloc创建的新inode被所有任务共享,
  * 需要将inode置于内核空间,故需要临时
  * 将cur_pbc->pgdir置为NULL */
-   TaskStruct* cur = running_thread();
+   struct task_struct* cur = running_thread();
    uint32_t* cur_pagedir_bak = cur->pgdir;
    cur->pgdir = NULL;
    /* 以上三行代码完成后下面分配的内存将位于内核区 */
@@ -133,7 +133,7 @@ void inode_close(struct inode* inode) {
       list_remove(&inode->inode_tag);	  // 将I结点从part->open_inodes中去掉
 
    /* inode_open时为实现inode被所有进程共享,已经在sys_malloc为inode分配了内核空间 */
-      TaskStruct* cur = running_thread();
+      struct task_struct* cur = running_thread();
       uint32_t* cur_pagedir_bak = cur->pgdir;
       cur->pgdir = NULL;
       sys_free(inode);		         // 释放inode的内核空间

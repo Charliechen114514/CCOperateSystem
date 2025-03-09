@@ -57,7 +57,7 @@ static void* vaddr_get(enum pool_flags pf, uint32_t pg_cnt) {
       }
       vaddr_start = kernel_vaddr.vaddr_start + bit_idx_start * PG_SIZE;
    } else {	     // 用户内存池	
-      TaskStruct* cur = running_thread();
+      struct task_struct* cur = running_thread();
       bit_idx_start  = bitmap_scan(&cur->userprog_vaddr.vaddr_bitmap, pg_cnt);
       if (bit_idx_start == -1) {
 	      return NULL;
@@ -201,7 +201,7 @@ void* get_a_page(enum pool_flags pf, uint32_t vaddr) {
    lock_acquire(&mem_pool->lock);
 
    /* 先将虚拟地址对应的位图置1 */
-   TaskStruct* cur = running_thread();
+   struct task_struct* cur = running_thread();
    int32_t bit_idx = -1;
 
 /* 若当前是用户进程申请用户内存,就修改用户进程自己的虚拟地址位图 */
@@ -267,7 +267,7 @@ void* sys_malloc(uint32_t size) {
    struct pool* mem_pool;
    uint32_t pool_size;
    struct mem_block_desc* descs;
-   TaskStruct* cur_thread = running_thread();
+   struct task_struct* cur_thread = running_thread();
 
 /* 判断用哪个内存池*/
    if (cur_thread->pgdir == NULL) {     // 若为内核线程
@@ -387,7 +387,7 @@ static void vaddr_remove(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt) {
 	 bitmap_set(&kernel_vaddr.vaddr_bitmap, bit_idx_start + cnt++, 0);
       }
    } else {  // 用户虚拟内存池
-      TaskStruct* cur_thread = running_thread();
+      struct task_struct* cur_thread = running_thread();
       bit_idx_start = (vaddr - cur_thread->userprog_vaddr.vaddr_start) / PG_SIZE;
       while(cnt < pg_cnt) {
 	 bitmap_set(&cur_thread->userprog_vaddr.vaddr_bitmap, bit_idx_start + cnt++, 0);

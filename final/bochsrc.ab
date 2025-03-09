@@ -13,6 +13,7 @@ boot: disk  #从硬盘启动
 # floppya: 1_44=a.img, status=inserted
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 ata0-master: type=disk, path="a.img", mode=flat
+ata0-slave:  type=disk, path="disk.img", mode=flat
 # 设置日志文件的输入位置
 log: =/usr/local/share/bochs/bochs.out
 

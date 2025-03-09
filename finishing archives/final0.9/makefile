@@ -149,7 +149,7 @@ clean:
 # Clean the compile time folder	
 	rm -rf ${OBJ_DIR}/* ${OBJ_DIR}
 # clean the bochs running log and image
-	rm -f *.out *.img
+	rm -f *.out ${BOOT_IMG}
 	
 
 # Add files you gonna dump speical!
