@@ -25,7 +25,7 @@ static void partition_format(DiskPartition *part)
                 BITS_PER_SECTOR); // Number of sectors for the inode bitmap.
                                   // Supports a maximum of 4096 files
     uint32_t inode_table_sects =
-        ROUNDUP(((sizeof(struct inode) * MAX_FILES_PER_PART)), SECTOR_SIZE);
+        ROUNDUP(((sizeof(Inode) * MAX_FILES_PER_PART)), SECTOR_SIZE);
     uint32_t used_sects = boot_sector_sects + super_block_sects +
                           inode_bitmap_sects + inode_table_sects;
     uint32_t free_sects = part->sec_cnt - used_sects;
@@ -133,7 +133,7 @@ static void partition_format(DiskPartition *part)
     /* Prepare the first inode in the inode table, which corresponds to the root
      * directory */
     k_memset(buf, 0, buf_size); // Clear the buffer
-    struct inode *i = (struct inode *)buf;
+    Inode *i = (Inode *)buf;
     i->i_size = sb.dir_entry_size * 2; // For "." and ".."
     i->i_no = 0;                       // The root directory occupies the first inode
     i->i_sectors[0] =

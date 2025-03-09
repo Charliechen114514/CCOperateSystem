@@ -5,6 +5,9 @@
         "ccos_print.h": "c",
         "stdio-kernel.h": "c",
         "filesystem_settings.h": "c",
-        "memory_tools.h": "c"
+        "memory_tools.h": "c",
+        "thread.h": "c",
+        "string.h": "c",
+        "file.h": "c"
     }
 }
