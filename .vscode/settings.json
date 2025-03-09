@@ -15,6 +15,7 @@
         "interrupt.h": "c",
         "lock.h": "c",
         "string.h": "c",
-        "syscall.h": "c"
+        "syscall.h": "c",
+        "compare": "c"
     }
 }

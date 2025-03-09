@@ -8,7 +8,7 @@
 #include "include/memory/memory.h"
 #include "include/memory/memory_settings.h"
 #include "include/user/program/process.h"
-
+#include "include/user/ccshell/pipe.h"
 extern void intr_exit(void);
 
 /* Copy parent process's PCB, virtual address bitmap, and stack to child process
@@ -146,8 +146,12 @@ static void update_inode_open_cnts(TaskStruct *thread) {
         global_fd = thread->fd_table[local_fd];
         KERNEL_ASSERT(global_fd < MAX_FILE_OPEN);
         if (global_fd != -1) {
-            file_table[global_fd].fd_inode->i_open_cnts++; // Increment inode open count for
-                                      // regular files
+            if(is_pipe(local_fd)){
+                file_table[global_fd].fd_pos++; 
+            }else{
+                file_table[global_fd].fd_inode->i_open_cnts++; // Increment inode open count for
+                // regular files
+            } 
         }
         local_fd++;
     }
